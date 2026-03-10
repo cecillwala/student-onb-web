@@ -1,0 +1,57 @@
+<app-navbar [showProfile]="true"></app-navbar>
+
+<div class="congrats-page">
+  <div class="congrats-container">
+
+    <!-- Success icon -->
+    <div class="success-icon-wrapper">
+      <div class="success-circle">
+        <span class="material-icons">check</span>
+      </div>
+      <div class="confetti confetti-1">🎉</div>
+      <div class="confetti confetti-2">🎊</div>
+      <div class="confetti confetti-3">✨</div>
+    </div>
+
+    <h1>Congratulations!</h1>
+    <p class="subtitle">Your onboarding application has been submitted successfully.</p>
+
+    <!-- Info card -->
+    <div class="info-card">
+      <div class="info-card-header">
+        <span class="material-icons">info</span>
+        <span>What happens next?</span>
+      </div>
+      <div class="info-card-body">
+        <div class="next-step" *ngFor="let step of nextSteps; let i = index">
+          <div class="next-step-number">{{ i + 1 }}</div>
+          <div class="next-step-content">
+            <span class="next-step-title">{{ step.title }}</span>
+            <span class="next-step-desc">{{ step.description }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Submission details -->
+    <div class="submission-details">
+      <div class="detail-row">
+        <span class="material-icons">schedule</span>
+        <span>Submitted on {{ submittedAt | date:'fullDate' }} at {{ submittedAt | date:'shortTime' }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="material-icons">email</span>
+        <span>A confirmation email has been sent to your registered email address.</span>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="congrats-actions">
+      <button class="btn-primary" (click)="goToStatus()">
+        <span class="material-icons">visibility</span>
+        Track My Application
+      </button>
+    </div>
+
+  </div>
+</div>

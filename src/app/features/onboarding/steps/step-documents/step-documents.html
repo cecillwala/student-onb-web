@@ -1,0 +1,10 @@
+<div class="doc-upload-item" *ngFor="let doc of documents">
+  <div class="doc-header">
+    <span class="doc-name">{{ doc.name }} <span class="required" *ngIf="doc.required">*</span></span>
+    <span class="doc-desc">{{ doc.description }}</span>
+  </div>
+  <div class="drop-area compact">
+    <span class="material-icons drop-icon-sm">attach_file</span>
+    <span class="drop-text-sm">Click to upload · PDF or JPEG · Max 5MB</span>
+  </div>
+</div>

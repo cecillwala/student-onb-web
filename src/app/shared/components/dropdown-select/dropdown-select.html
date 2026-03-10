@@ -1,0 +1,41 @@
+<mat-form-field class="width" appearance="outline" floatLabel="always">
+  <input
+    class="natianliinput"
+    matInput
+    #autoTrigger="matAutocompleteTrigger"
+    [readonly]="true"
+    [formControl]="selectCtrl"
+    [matAutocomplete]="auto"
+    [placeholder]="placeholder"
+    required
+    (click)="openAutocomplete(autoTrigger)"
+  />
+  <mat-icon
+    class="dropdownicoon"
+    (click)="openAutocomplete(autoTrigger)"
+    matSuffix
+    >arrow_drop_down</mat-icon
+  >
+  @if (ngControl.errors?.['required']) {
+   <mat-error>{{ 'ERRORS.REQUIRED_FIELD' }}</mat-error>
+  }
+  <mat-autocomplete
+    #auto="matAutocomplete"
+    [displayWith]="displayFn"
+    (opened)="onOpenedChange(true)"
+    (closed)="onOpenedChange(false)"
+  >
+    <div class="search-container">
+      <input
+        #searchInput
+        [formControl]="searchCtrl"
+        [placeholder]="searchPlaceholder"
+      />
+    </div>
+    @for (item of filteredData | async; track item) {
+    <mat-option [value]="item[valueField]" (click)="selectItem(item)">
+      <span>{{ renderLabel(item) }}</span>
+    </mat-option>
+    }
+  </mat-autocomplete>
+</mat-form-field>

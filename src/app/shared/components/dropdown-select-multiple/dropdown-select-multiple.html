@@ -1,0 +1,50 @@
+<mat-form-field class="width" appearance="outline" floatLabel="always">
+  <mat-chip-grid #chipGrid aria-label="Country selection">
+    @for (country of selectedCountries; track country[valueField]) {
+    <mat-chip-row (removed)="removeCountry(country)" [removable]="true">
+      {{ getDisplayName(country) }}
+      <button matChipRemove>
+        <mat-icon>cancel</mat-icon>
+      </button>
+    </mat-chip-row>
+    }
+    <input
+      #searchInput
+      matInput
+      #autoTrigger="matAutocompleteTrigger"
+      [readonly]="true"
+      [matAutocomplete]="auto"
+      [matChipInputFor]="chipGrid"
+      [placeholder]="placeholder"
+      (click)="openAutocomplete(autoTrigger)"
+    />
+  </mat-chip-grid>
+
+  <mat-autocomplete
+    #auto="matAutocomplete"
+    (opened)="onOpenedChange(true)"
+    (closed)="onOpenedChange(false)"
+  >
+    <div class="search-container">
+      <input
+        [formControl]="searchCtrl"
+        [placeholder]="searchPlaceholder"
+        class="search-input"
+      />
+    </div>
+
+    @for (country of filteredData | async; track country[valueField]) {
+    <mat-option (click)="selectCountry(country)">
+      <span>{{ getDisplayName(country) }}</span>
+    </mat-option>
+    } @if ((filteredData | async)?.length === 0) {
+    <mat-option disabled> No countries found </mat-option>
+    }
+  </mat-autocomplete>
+</mat-form-field>
+
+@if (ngControl.errors?.['required'] && ngControl.touched) {
+<mat-error style="font-size: 12px; line-height: 1.2">
+  At least one country is required
+</mat-error>
+}

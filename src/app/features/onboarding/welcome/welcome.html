@@ -1,0 +1,69 @@
+<app-navbar [showProfile]="false"></app-navbar>
+
+<div class="welcome-page">
+  <div class="welcome-container">
+
+    <!-- Header -->
+    <div class="welcome-header">
+      <!-- <div class="welcome-icon">🎓</div> -->
+      <h1>Welcome to Egerton University</h1>
+      <p>Complete your onboarding to finalize your enrollment. This process takes approximately 15–20 minutes.</p>
+    </div>
+
+    <!-- Student card -->
+    <div class="student-card">
+      <div class="student-card-header">
+        <div class="student-avatar">{{ getInitials(student.name) }}</div>
+        <div class="student-identity">
+          <span class="student-name">{{ student.name }}</span>
+          <span class="student-reg">{{ student.regNo }}</span>
+        </div>
+      </div>
+      <div class="student-card-body">
+        <div class="detail-grid">
+          <div class="detail-item" *ngFor="let d of studentDetails">
+            <span class="detail-label">{{ d.label }}</span>
+            <span class="detail-value">{{ d.value }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Steps overview -->
+    <div class="steps-card">
+      <div class="steps-header">
+        <h2>Onboarding Steps</h2>
+        <span class="steps-badge">{{ steps.length }} steps</span>
+      </div>
+      <div class="steps-grid">
+        <div class="step-preview" *ngFor="let step of steps">
+          <div class="step-preview-icon">
+            <span class="material-icons">{{ step.icon }}</span>
+          </div>
+          <div class="step-preview-text">
+            <span class="step-preview-title">{{ step.title }}</span>
+            <span class="step-preview-desc">{{ step.description }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notice -->
+    <div class="notice-banner">
+      <span class="notice-icon">⚠️</span>
+      <div class="notice-content">
+        <strong>Before you begin</strong>
+        <p>Have your National ID, KCSE certificate, medical report, and chief's letter ready. Your progress is saved automatically — you can resume anytime using the link sent to your email.</p>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="welcome-action">
+      <button class="btn-primary" (click)="startOnboarding()">
+        Begin Onboarding
+        <span class="material-icons">arrow_forward</span>
+      </button>
+    </div>
+
+  </div>
+</div>

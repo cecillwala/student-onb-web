@@ -1,0 +1,88 @@
+<app-navbar [showProfile]="true"></app-navbar>
+
+<div class="wizard-layout">
+  <!-- Main content -->
+  <div class="wizard-main">
+    <!-- Scrollable area -->
+    <div class="wizard-scroll-area">
+      <!-- Step header -->
+      <div class="step-header">
+        <span class="step-label">Step {{ currentStep }} of {{ state.totalSteps }}</span>
+        <h2 class="step-title">{{ currentStepData?.title }}</h2>
+        <p class="step-desc">{{ currentStepData?.description }}</p>
+      </div>
+
+      <!-- Save status (hidden on summary step) -->
+      <div class="save-indicator" [ngClass]="saveStatus" *ngIf="!state.isSummaryStep">
+        <span class="save-dot"></span>
+        <span class="save-text" [ngSwitch]="saveStatus">
+          <ng-container *ngSwitchCase="'idle'">Auto-saving enabled</ng-container>
+          <ng-container *ngSwitchCase="'saving'">Saving...</ng-container>
+          <ng-container *ngSwitchCase="'saved'">All changes saved</ng-container>
+          <ng-container *ngSwitchCase="'error'">Save failed — retrying</ng-container>
+        </span>
+      </div>
+
+      <!-- Step content -->
+      <div class="step-form-card" [class.summary-card]="state.isSummaryStep">
+        <ng-container [ngSwitch]="currentStep">
+          <app-step-personal        *ngSwitchCase="1"></app-step-personal>
+          <app-step-id-verification  *ngSwitchCase="2"></app-step-id-verification>
+          <app-step-academic         *ngSwitchCase="3"></app-step-academic>
+          <app-step-accommodation    *ngSwitchCase="4"></app-step-accommodation>
+          <app-step-health           *ngSwitchCase="5"></app-step-health>
+          <app-step-documents        *ngSwitchCase="6"></app-step-documents>
+          <app-step-summary          *ngSwitchCase="7"></app-step-summary>
+        </ng-container>
+      </div>
+    </div>
+
+    <!-- Fixed bottom nav -->
+    <div class="wizard-nav-bar">
+      <div class="nav-bar-inner">
+        <button
+          class="btn-back"
+          [disabled]="state.isFirstStep"
+          [class.disabled]="state.isFirstStep"
+          (click)="onBack()"
+        >
+          <span class="material-icons">arrow_back</span>
+          Back
+        </button>
+
+        <div class="nav-step-pills">
+          <span
+            *ngFor="let step of state.steps"
+            class="nav-pill"
+            [class.active]="step.id === currentStep"
+            [class.completed]="state.isStepCompleted(step.id)"
+            [class.accessible]="state.isStepAccessible(step.id) && step.id !== currentStep"
+            [class.disabled]="!state.isStepAccessible(step.id)"
+            (click)="onPillClick(step)"
+            [title]="step.title"
+          ></span>
+        </div>
+
+        <button
+          class="btn-next"
+          [class.submit]="state.isSummaryStep"
+          (click)="onNext()"
+        >
+          <ng-container *ngIf="state.isSummaryStep; else normalNext">
+            Continue
+            <span class="material-icons">send</span>
+          </ng-container>
+          <ng-template #normalNext>
+            {{ state.isLastStep ? 'Review & Submit' : 'Save & Continue' }}
+            <span class="material-icons">arrow_forward</span>
+          </ng-template>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right sidebar -->
+  <app-step-sidebar class="sidebar"></app-step-sidebar>
+</div>
+
+<app-chatbot-button></app-chatbot-button>

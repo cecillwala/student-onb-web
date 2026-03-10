@@ -1,0 +1,47 @@
+<section class="form-section">
+  <label class="form-label">Residency Status <span class="required">*</span></label>
+  <div class="radio-group">
+    <label class="radio-card" [class.selected]="residency === 'resident'" (click)="residency = 'resident'">
+      <span class="radio-dot" [class.active]="residency === 'resident'"></span>
+      <span class="material-icons radio-icon">apartment</span>
+      <span>Resident (On-Campus)</span>
+    </label>
+    <label class="radio-card" [class.selected]="residency === 'non-resident'" (click)="residency = 'non-resident'">
+      <span class="radio-dot" [class.active]="residency === 'non-resident'"></span>
+      <span class="material-icons radio-icon">home</span>
+      <span>Non-Resident (Off-Campus)</span>
+    </label>
+  </div>
+</section>
+
+<section class="form-section" *ngIf="residency === 'resident'">
+  <h3 class="section-title">Hostel Preferences</h3>
+  <div class="form-grid cols-3">
+    <div class="form-group">
+      <label class="form-label">Preferred Hostel</label>
+      <select class="form-select"><option value="">Select hostel</option></select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Room Type</label>
+      <select class="form-select"><option value="">Select type</option></select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Bed Preference</label>
+      <select class="form-select"><option value="">Select bed</option></select>
+    </div>
+  </div>
+</section>
+
+<section class="form-section" *ngIf="residency === 'non-resident'">
+  <div class="form-group">
+    <label class="form-label">Off-Campus Location</label>
+    <input class="form-input" placeholder="Enter your off-campus address" />
+  </div>
+</section>
+
+<section class="form-section">
+  <div class="form-group">
+    <label class="form-label">Special Accommodation Needs</label>
+    <textarea class="form-textarea" placeholder="Describe any special requirements"></textarea>
+  </div>
+</section>

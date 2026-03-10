@@ -1,0 +1,195 @@
+<form [formGroup]="form">
+  <!-- ======== Student Information ======== -->
+  <section class="form-section">
+    <h3 class="section-title">Student Information</h3>
+    <div class="form-grid cols-2">
+
+      <!-- Gender -->
+      <div class="form-group">
+        <label class="form-label">Gender <span class="required">*</span></label>
+        <app-dropdown-select
+          formControlName="gender"
+          [data]="genderOptions"
+          displayField="name"
+          valueField="id"
+          placeholder="Select gender"
+          searchPlaceholder="Search gender..."
+        ></app-dropdown-select>
+      </div>
+
+      <!-- Religion -->
+      <div class="form-group">
+        <label class="form-label">Religion</label>
+        <app-dropdown-select
+          formControlName="religion"
+          [data]="religionOptions"
+          displayField="name"
+          valueField="id"
+          placeholder="Select religion"
+          searchPlaceholder="Search religion..."
+        ></app-dropdown-select>
+      </div>
+
+      <!-- Nationality -->
+      <div class="form-group">
+        <label class="form-label">Nationality <span class="required">*</span></label>
+        <app-dropdown-select
+          formControlName="nationality"
+          [data]="nationalities"
+          displayField="name"
+          valueField="id"
+          placeholder="Select nationality"
+          searchPlaceholder="Search nationality..."
+        ></app-dropdown-select>
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label class="form-label">Email Address <span class="required">*</span></label>
+        <mat-form-field appearance="outline" class="full-width">
+          <input
+            matInput
+            formControlName="email"
+            type="email"
+            placeholder="Enter email address"
+          />
+          <mat-error *ngIf="form.get('email')?.hasError('required')">Email is required</mat-error>
+          <mat-error *ngIf="form.get('email')?.hasError('email')">Please enter a valid email</mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Phone -->
+      <div class="form-group">
+        <label class="form-label">Phone Number <span class="required">*</span></label>
+        <ngx-material-intl-tel-input
+          [preferredCountries]="['ke']"
+          [enablePlaceholder]="true"
+          [enableSearch]="true"
+          (phoneChange)="onPhoneChange($event, 'phone')"
+        ></ngx-material-intl-tel-input>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ======== Address Details ======== -->
+  <section class="form-section">
+    <h3 class="section-title">Address Details</h3>
+    <div class="form-grid cols-2">
+
+      <!-- County -->
+      <div class="form-group">
+        <label class="form-label">County <span class="required">*</span></label>
+        <app-dropdown-select
+          formControlName="county"
+          [data]="counties"
+          displayField="name"
+          valueField="id"
+          placeholder="Select county"
+          searchPlaceholder="Search county..."
+          (selectionChange)="onCountyChange($event)"
+        ></app-dropdown-select>
+      </div>
+
+      <!-- Constituency -->
+      <div class="form-group">
+        <label class="form-label">Constituency <span class="required">*</span></label>
+        <app-dropdown-select
+          formControlName="constituency"
+          [data]="constituencies"
+          displayField="name"
+          valueField="id"
+          placeholder="Select constituency"
+          searchPlaceholder="Search constituency..."
+          (selectionChange)="onConstituencyChange($event)"
+        ></app-dropdown-select>
+      </div>
+
+      <!-- Ward -->
+      <div class="form-group">
+        <label class="form-label">Ward <span class="required">*</span></label>
+        <app-dropdown-select
+          formControlName="ward"
+          [data]="wards"
+          displayField="name"
+          valueField="id"
+          placeholder="Select ward"
+          searchPlaceholder="Search ward..."
+        ></app-dropdown-select>
+      </div>
+
+      <!-- Postal Code -->
+      <div class="form-group">
+        <label class="form-label">Postal Code</label>
+        <mat-form-field appearance="outline" class="full-width">
+          <input
+            matInput
+            formControlName="postalCode"
+            placeholder="Enter postal code"
+          />
+        </mat-form-field>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ======== Guardian Details ======== -->
+  <section class="form-section">
+    <h3 class="section-title">Guardian Details</h3>
+    <div class="form-grid cols-2">
+
+      <!-- First Name -->
+      <div class="form-group">
+        <label class="form-label">First Name <span class="required">*</span></label>
+        <mat-form-field appearance="outline" class="full-width">
+          <input
+            matInput
+            formControlName="guardianFirstName"
+            placeholder="Enter guardian's first name"
+          />
+          <mat-error>First name is required</mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Last Name -->
+      <div class="form-group">
+        <label class="form-label">Last Name <span class="required">*</span></label>
+        <mat-form-field appearance="outline" class="full-width">
+          <input
+            matInput
+            formControlName="guardianLastName"
+            placeholder="Enter guardian's last name"
+          />
+          <mat-error>Last name is required</mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Guardian Phone -->
+      <div class="form-group">
+        <label class="form-label">Phone Number <span class="required">*</span></label>
+        <ngx-material-intl-tel-input
+          [preferredCountries]="['ke']"
+          [mainLabel]="''"
+          [enablePlaceholder]="true"
+          [enableSearch]="true"
+          (phoneChange)="onPhoneChange($event, 'guardianPhone')"
+        ></ngx-material-intl-tel-input>
+      </div>
+
+      <!-- Guardian Email -->
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <mat-form-field appearance="outline" class="full-width">
+          <input
+            matInput
+            formControlName="guardianEmail"
+            type="email"
+            placeholder="Enter guardian's email address"
+          />
+          <mat-error>Please enter a valid email</mat-error>
+        </mat-form-field>
+      </div>
+
+    </div>
+  </section>
+</form>

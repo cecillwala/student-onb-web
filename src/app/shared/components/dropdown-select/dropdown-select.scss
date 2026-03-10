@@ -1,0 +1,48 @@
+.width {
+  width: 100% !important;
+}
+
+.search-container {
+  padding: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.dropdownicoon {
+  cursor: pointer;
+}
+.natianliinput {
+  color: black;
+  border:1px solid #ccc;
+}
+
+input {
+  color: black;
+}
+
+.search-container input {
+  width: 97%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+::ng-deep .mat-autocomplete-panel {
+  max-height: 400px !important;
+}
+/* Change autocomplete panel background */
+::ng-deep .mat-autocomplete-panel {
+  max-height: 400px !important;
+  background-color: #fff !important; /* Add this */
+}
+
+/* Change options background */
+::ng-deep .mat-autocomplete-panel .mat-option {
+  background-color: #fff !important;
+}
+
+/* Change options hover background */
+::ng-deep .mat-autocomplete-panel .mat-option:hover {
+  background-color: #f5f5f5 !important; /* Light gray on hover */
+}

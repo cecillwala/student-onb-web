@@ -1,0 +1,16 @@
+<section class="form-section">
+  <div class="form-group">
+    <label class="form-label">Mode of Study <span class="required">*</span></label>
+    <select class="form-select">
+      <option value="">Select mode</option>
+      <option>Full-time</option>
+      <option>Part-time</option>
+      <option>Distance Learning</option>
+    </select>
+  </div>
+
+  <div class="form-group" *ngFor="let f of textareaFields">
+    <label class="form-label">{{ f }}</label>
+    <textarea class="form-textarea" [placeholder]="'Describe your ' + f.toLowerCase()"></textarea>
+  </div>
+</section>

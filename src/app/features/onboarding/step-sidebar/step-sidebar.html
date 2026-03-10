@@ -1,0 +1,46 @@
+<aside class="sidebar">
+  <div class="sidebar-heading">Your Progress</div>
+
+  <!-- Progress bar -->
+  <div class="progress-track">
+    <div class="progress-fill" [style.width.%]="state.completionPercentage"></div>
+  </div>
+  <div class="progress-label">{{ completedCount }} of {{ state.totalSteps - 1 }} completed</div>
+
+  <!-- Step list -->
+  <div class="step-list">
+    <div *ngFor="let step of state.steps; let last = last" class="step-row">
+      <div class="step-indicator">
+        <div
+          class="step-circle"
+          [class.active]="step.id === currentStep"
+          [class.completed]="state.isStepCompleted(step.id)"
+          [class.accessible]="state.isStepAccessible(step.id) && step.id !== currentStep && !state.isStepCompleted(step.id)"
+          [class.disabled]="!state.isStepAccessible(step.id)"
+          (click)="onStepClick(step)"
+        >
+          <span class="material-icons check-icon" *ngIf="state.isStepCompleted(step.id)">check</span>
+          <span *ngIf="!state.isStepCompleted(step.id)">{{ step.id }}</span>
+        </div>
+        <div *ngIf="!last" class="step-line" [class.completed]="state.isStepCompleted(step.id)"></div>
+      </div>
+
+      <div
+        class="step-info"
+        [class.active]="step.id === currentStep"
+        [class.completed]="state.isStepCompleted(step.id)"
+        [class.disabled]="!state.isStepAccessible(step.id)"
+        (click)="onStepClick(step)"
+      >
+        <span class="step-title">{{ step.title }}</span>
+        <span class="step-desc" *ngIf="step.id === currentStep">{{ step.description }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Help box -->
+  <div class="help-box">
+    <div class="help-title">💬 Need help?</div>
+    <div class="help-text">Use the chat assistant for guidance on any step.</div>
+  </div>
+</aside>

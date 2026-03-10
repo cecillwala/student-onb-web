@@ -1,0 +1,35 @@
+<!-- Chat panel -->
+<div class="chat-panel" *ngIf="isOpen">
+  <div class="chat-header">
+    <div>
+      <div class="chat-title">Onboarding Assistant</div>
+      <div class="chat-subtitle">Ask me anything about the process</div>
+    </div>
+    <button class="chat-close" (click)="toggle()">
+      <span class="material-icons">close</span>
+    </button>
+  </div>
+
+  <div class="chat-body">
+    <div class="chat-bubble bot">
+      Hi there! 👋 I'm here to help you through the onboarding process. What would you like to know?
+    </div>
+  </div>
+
+  <div class="chat-input-area">
+    <input
+      type="text"
+      class="chat-input"
+      placeholder="Type your question..."
+      (keyup.enter)="sendMessage()"
+    />
+    <button class="chat-send" (click)="sendMessage()">
+      <span class="material-icons">arrow_upward</span>
+    </button>
+  </div>
+</div>
+
+<!-- Floating button -->
+<button class="fab" (click)="toggle()">
+  <span class="material-icons">{{ isOpen ? 'close' : 'chat' }}</span>
+</button>
