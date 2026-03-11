@@ -1,4 +1,4 @@
-<mat-form-field class="width" appearance="outline" floatLabel="always">
+<mat-form-field class="width form-field" appearance="outline" floatLabel="always">
   <input
     class="natianliinput"
     matInput
@@ -17,7 +17,17 @@
     >arrow_drop_down</mat-icon
   >
   @if (ngControl.errors?.['required']) {
-   <mat-error>{{ 'ERRORS.REQUIRED_FIELD' }}</mat-error>
+    <mat-error>
+      @switch (label) {
+        @case ('religion') { Religion is required }
+        @case ('gender') { Gender is required }
+        @case ('nationality') { Nationality is required }
+        @case ('county') { County is required }
+        @case ('constituency') { Constituency is required }
+        @case ('ward') { Ward is required }
+        @default { This field is required }
+      }
+    </mat-error>
   }
   <mat-autocomplete
     #auto="matAutocomplete"

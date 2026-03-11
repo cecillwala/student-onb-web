@@ -10,6 +10,7 @@
         <app-dropdown-select
           formControlName="gender"
           [data]="genderOptions"
+          [label]="'gender'"
           displayField="name"
           valueField="id"
           placeholder="Select gender"
@@ -25,6 +26,7 @@
           [data]="religionOptions"
           displayField="name"
           valueField="id"
+          [label]="'religion'"
           placeholder="Select religion"
           searchPlaceholder="Search religion..."
         ></app-dropdown-select>
@@ -37,6 +39,7 @@
           formControlName="nationality"
           [data]="nationalities"
           displayField="name"
+          [label]="'nationality'"
           valueField="id"
           placeholder="Select nationality"
           searchPlaceholder="Search nationality..."
@@ -46,7 +49,7 @@
       <!-- Email -->
       <div class="form-group">
         <label class="form-label">Email Address <span class="required">*</span></label>
-        <mat-form-field appearance="outline" class="full-width">
+        <mat-form-field appearance="outline" class="form-field">
           <input
             matInput
             formControlName="email"
@@ -62,6 +65,7 @@
       <div class="form-group">
         <label class="form-label">Phone Number <span class="required">*</span></label>
         <ngx-material-intl-tel-input
+          class="form-field"
           [preferredCountries]="['ke']"
           [enablePlaceholder]="true"
           [enableSearch]="true"
@@ -83,6 +87,7 @@
         <app-dropdown-select
           formControlName="county"
           [data]="counties"
+          [label]="'county'"
           displayField="name"
           valueField="id"
           placeholder="Select county"
@@ -98,6 +103,7 @@
           formControlName="constituency"
           [data]="constituencies"
           displayField="name"
+          [label]="'constituency'"
           valueField="id"
           placeholder="Select constituency"
           searchPlaceholder="Search constituency..."
@@ -111,6 +117,7 @@
         <app-dropdown-select
           formControlName="ward"
           [data]="wards"
+          [label]="'ward'"
           displayField="name"
           valueField="id"
           placeholder="Select ward"
@@ -121,7 +128,7 @@
       <!-- Postal Code -->
       <div class="form-group">
         <label class="form-label">Postal Code</label>
-        <mat-form-field appearance="outline" class="full-width">
+        <mat-form-field appearance="outline" class="form-field">
           <input
             matInput
             formControlName="postalCode"
@@ -141,7 +148,7 @@
       <!-- First Name -->
       <div class="form-group">
         <label class="form-label">First Name <span class="required">*</span></label>
-        <mat-form-field appearance="outline" class="full-width">
+        <mat-form-field appearance="outline" class="form-field">
           <input
             matInput
             formControlName="guardianFirstName"
@@ -154,7 +161,7 @@
       <!-- Last Name -->
       <div class="form-group">
         <label class="form-label">Last Name <span class="required">*</span></label>
-        <mat-form-field appearance="outline" class="full-width">
+        <mat-form-field appearance="outline" class="form-field">
           <input
             matInput
             formControlName="guardianLastName"
@@ -179,7 +186,7 @@
       <!-- Guardian Email -->
       <div class="form-group">
         <label class="form-label">Email Address</label>
-        <mat-form-field appearance="outline" class="full-width">
+        <mat-form-field appearance="outline" class="form-field">
           <input
             matInput
             formControlName="guardianEmail"

@@ -11,12 +11,13 @@ $gray-50:       #F9FAFB;
 $gray-100:      #F3F4F6;
 $gray-200:      #E5E7EB;
 $gray-300:      #D1D5DB;
-$gray-400:      #e0dcdc;
+$gray-400:      #c2bcbc;
 $gray-500:      #6B7280;
 $gray-600:      #4B5563;
 $gray-700:      #374151;
 $gray-800:      #1F2937;
 $danger:        #DC2626;
+$field-radius: 8px;
 
 // ---------- Layout ----------
 
@@ -77,6 +78,76 @@ ngx-material-intl-tel-input {
   color: $danger;
 }
 
+:host ::ng-deep .form-field {
+
+  // ── Size ──────────────────────────────────
+  .mat-mdc-text-field-wrapper {
+    padding: 0 6px;
+  }
+
+  // ── Border ────────────────────────────────
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__trailing {
+    border-color: $gray-400 !important;    
+  }
+
+  .mdc-notched-outline__notch {
+    border-radius: 0 !important;
+  }
+
+  .mat-mdc-text-field-wrapper {
+    background-color: #ffffff !important;
+  }
+
+  .mat-mdc-form-field-infix {
+    padding-left: 8px;
+  }
+
+  .mdc-notched-outline__trailing {
+    border-radius: 0 $field-radius $field-radius 0 !important;
+  }
+
+  .mdc-notched-outline__leading {
+    border-radius: $field-radius 0 0 $field-radius !important;
+  }
+
+  .mdc-notched-outline {
+    border-radius: 12px !important;
+  }
+
+  &:hover {
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__notch,
+    .mdc-notched-outline__trailing {
+      border-color: $gray-400;
+    }
+  }
+
+  &.mat-focused {
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__notch,
+    .mdc-notched-outline__trailing {
+      border-color: $primary;
+      outline: none;
+    }
+  }
+
+  // ── Focus shadow ──────────────────────────
+  &.mat-focused {
+    .mat-mdc-text-field-wrapper {
+      box-shadow: 0 0 0 3px rgba($primary, 0.15);
+      border-radius: 4px;
+    }
+  }
+
+  // ── Placeholder ───────────────────────────
+  input.mat-mdc-input-element::placeholder {
+    color: #616060;
+    opacity: 1;
+  }
+}
+
 .form-input,
 .form-select,
 .form-textarea {
@@ -93,7 +164,7 @@ ngx-material-intl-tel-input {
   transition: border-color 0.2s, box-shadow 0.2s;
 
   &::placeholder {
-    color: $gray-400;
+    color: #616060;
   }
 
   &:focus {
