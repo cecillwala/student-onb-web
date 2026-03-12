@@ -5,13 +5,14 @@ export const routes: Routes = [
   {
     path: 'onboarding/welcome',
     loadComponent: () =>
-      import('./features/onboarding/welcome/welcome').then(m => m.Welcome),
-  },
+        import('./features/onboarding/welcome/welcome').then(m => m.Welcome),
+    },
+    // app.routes.ts
   {
-    path: 'onboarding/wizard',
-    loadComponent: () =>
-      import('./features/onboarding/wizard-container/wizard-container').then(
-        m => m.WizardContainer
+    path: 'onboarding',
+    loadChildren: () =>
+      import('./features/onboarding/wizard-container/steps/steps.routes').then(
+        m => m.STEPS_ROUTES
       ),
   },
   {

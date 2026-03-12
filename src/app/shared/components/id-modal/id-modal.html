@@ -1,0 +1,111 @@
+<div class="upload-container">
+    <!-- Close button -->
+    <button class="close-button" mat-dialog-close>
+        <mat-icon>close</mat-icon>
+    </button>
+
+    <h2 mat-dialog-title class="front-id">
+        {{
+            "Capture front National ID"
+        }}
+    </h2>
+
+    <!-- Hidden file input -->
+    <input
+        #fileInput
+        type="file"
+        class="file-input"
+        (change)="onFileSelected($event)"
+        accept=".pdf, .jpeg, .jpg, .png, application/pdf, image/jpeg, image/png"
+        style="display: none"
+    />
+
+    <div class="scanner-container">
+        <!-- Video Feed -->
+        <video
+        #video
+        [hidden]="capturedImage"
+        autoplay
+        playsinline
+        class="camera-feed"
+        ></video>
+
+        <!-- Blur Overlay - SIMPLIFIED -->
+        <div class="blur-overlay" [hidden]="capturedImage">
+        <div class="guide-frame">
+            <!-- Oval face guide -->
+            <div class="face-guide-oval"></div>
+        </div>
+
+        <div class="guide-text">
+            {{ "UPLOAD_DIRECT.SELFIE.GUIDE" }}
+            <br />
+            <span
+            ><strong>{{ "UPLOAD_DIRECT.SELFIE.HINT" }}</strong></span
+            >
+        </div>
+        </div>
+
+        <!-- Preview Canvas -->
+        <canvas #canvas [hidden]="!capturedImage" class="preview-canvas"> </canvas>
+
+        <!-- Hidden canvas for frame capture -->
+        <canvas #frameCanvas style="display: none"></canvas>
+
+        <!-- Liveness Check Overlay -->
+        <div *ngIf="checkingLiveness" class="liveness-check-overlay">
+        <div class="liveness-spinner">
+            <mat-spinner diameter="40"></mat-spinner>
+            <p>{{ "Verifying" }}</p>
+            <p class="liveness-subtext">
+            {{ "UPLOAD_DIRECT.LIVENESS.SUBTEXT" }}
+            </p>
+        </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls-container">
+            @if (!capturedImage) {
+                <button
+                    mat-fab
+                    color="primary"
+                    (click)="captureImage()"
+                    class="capture-button"
+                >
+                    {{ "Take Photo" }}
+                </button>
+            } @if (capturedImage) {
+                <div class="button-group">
+                    <button
+                    mat-raised-button
+                    color="warn"
+                    (click)="retake()"
+                    [disabled]="checkingLiveness"
+                    >
+                    {{ "Retake Photo"  }}
+                    </button>
+                    <button
+                    mat-raised-button
+                    color="primary"
+                    (click)="sendImage()"
+                    [disabled]="checkingLiveness"
+                    >
+                    <span *ngIf="!checkingLiveness">{{
+                        "Send"
+                    }}</span>
+                    <span *ngIf="checkingLiveness">
+                        <mat-spinner diameter="16" class="button-spinner"></mat-spinner>
+                        {{ "Checking" }}
+                    </span>
+                    </button>
+                </div>
+            }
+        </div>
+
+        <!-- Success Indicator -->
+        <div *ngIf="imageVerified && !checkingLiveness" class="success-indicator">
+        <mat-icon class="success-icon">check_circle</mat-icon>
+        <span>{{ "Selfie uploaded succesfully" }}</span>
+        </div>
+    </div>
+</div>

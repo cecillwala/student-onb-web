@@ -47,6 +47,7 @@ ngx-material-intl-tel-input {
 .form-grid {
   display: grid;
   gap: 14px;
+  row-gap: 8px;
 
   &.cols-2 { grid-template-columns: 1fr 1fr; }
   &.cols-3 { grid-template-columns: 1fr 1fr 1fr; }

@@ -1,0 +1,321 @@
+// ─── Token references (from your :root theme) ───
+// Falls back to sensible defaults if tokens aren't defined
+
+$primary: var(--primary, #1E40AF);
+$bg-overlay: rgba(0, 0, 0, 0.55);
+$radius-lg: 16px;
+$radius-md: 12px;
+
+// ─── Host / Container ───
+
+:host {
+  display: block;
+}
+
+.upload-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+  background: var(--card-bg, #0f172a);
+  border-radius: $radius-lg;
+  overflow: hidden;
+  color: #fff;
+
+  // Remove default mat-dialog padding if it leaks in
+  ::ng-deep .mat-mdc-dialog-surface {
+    padding: 0 !important;
+  }
+}
+
+// ─── Close Button ───
+
+.close-button {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.7);
+  }
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+// ─── Title ───
+
+.front-id {
+  padding: 20px 20px 12px;
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: #fff;
+}
+
+// ─── Scanner / Camera Area ───
+
+.scanner-container {
+  position: relative;
+  width: 100%;
+  // 4:3-ish aspect ratio so camera feed looks natural
+  aspect-ratio: 3 / 4;
+  background: #000;
+  overflow: hidden;
+}
+
+.camera-feed {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.preview-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+// ─── Blur Overlay + Face Guide ───
+
+.blur-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none; // allow taps to pass through
+}
+
+.guide-frame {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.face-guide-oval {
+  width: 380px;
+  height: 400px;
+  border: 2.5px dashed rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  box-shadow: 0 0 0 9999px $bg-overlay; // darkens everything outside the oval
+  animation: pulse-guide 2.5s ease-in-out infinite;
+}
+
+@keyframes pulse-guide {
+  0%, 100% { border-color: rgba(255, 255, 255, 0.5); }
+  50%      { border-color: rgba(255, 255, 255, 0.9); }
+}
+
+.guide-text {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  padding: 0 24px;
+
+  strong {
+    color: #fff;
+  }
+}
+
+// ─── Controls ───
+
+.controls-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  padding: 20px 20px 28px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, transparent 100%);
+}
+
+// Big, obvious capture button
+.capture-button {
+  width: 72px !important;
+  height: 72px !important;
+  border-radius: 50% !important;
+  border: 4px solid #fff !important;
+  background: $primary !important;
+  color: #fff !important;
+  font-size: 0;        // hide text visually
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  position: relative;
+
+  // Inner filled circle (classic camera shutter look)
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    border-radius: 50%;
+    background: #fff;
+    transition: transform 0.1s ease;
+  }
+
+  &:active {
+    transform: scale(0.9);
+
+    &::after {
+      transform: scale(0.85);
+    }
+  }
+}
+
+// Retake / Send button group
+.button-group {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  padding: 0 8px;
+
+  button {
+    flex: 1;
+    height: 48px;
+    border-radius: $radius-md !important;
+    font-weight: 600;
+    font-size: 0.9rem;
+    letter-spacing: 0.02em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+}
+
+.button-spinner {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+// ─── Liveness Check Overlay ───
+
+.liveness-check-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 15;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(6px);
+}
+
+.liveness-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+
+  p {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #fff;
+  }
+
+  .liveness-subtext {
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.6);
+  }
+}
+
+// ─── Success Indicator ───
+
+.success-indicator {
+  position: absolute;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 12;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(22, 163, 74, 0.9);
+  backdrop-filter: blur(4px);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 500;
+  animation: fade-in-up 0.3s ease-out;
+
+  .success-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+// ─── Hidden file input (just in case) ───
+
+.file-input {
+  display: none;
+}
+
+// ─── Responsive tweaks ───
+
+@media (max-width: 480px) {
+  .upload-container {
+    max-width: 100%;
+    border-radius: 0;
+  }
+
+  .scanner-container {
+    // On small phones, fill more vertical space
+    aspect-ratio: 9 / 14;
+  }
+
+  .face-guide-oval {
+    width: 150px;
+    height: 200px;
+  }
+
+  .capture-button {
+    width: 68px !important;
+    height: 68px !important;
+  }
+}

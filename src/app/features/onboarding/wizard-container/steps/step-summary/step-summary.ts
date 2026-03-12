@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { OnboardingStateService } from '../../../../shared/services/onboarding-state';
+import { OnboardingStateService } from '../../../../../shared/services/onboarding-state';
 
 interface SummarySection {
   title: string;

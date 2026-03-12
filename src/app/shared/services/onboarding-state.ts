@@ -1,6 +1,8 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { ONBOARDING_STEPS, OnboardingStep } from '../models/onboarding.models';
+import { Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 
 export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
@@ -10,14 +12,27 @@ export class OnboardingStateService {
   private summaryStep = new BehaviorSubject<boolean>(false);
   private completedStepsSubject = new BehaviorSubject<Set<number>>(new Set());
   private saveStatusSubject = new BehaviorSubject<SaveStatus>('idle');
+  private isNavigatingSubject = new BehaviorSubject<boolean>(false);
 
+  isNavigating$ = this.isNavigatingSubject.asObservable();
   currentStep$ = this.currentStepSubject.asObservable();
   completedSteps$ = this.completedStepsSubject.asObservable();
   saveStatus$ = this.saveStatusSubject.asObservable();
   isSummaryStep = this.summaryStep.asObservable();
 
+  router = inject(Router);
+
   readonly steps: OnboardingStep[] = ONBOARDING_STEPS;
   readonly totalSteps = ONBOARDING_STEPS.length;
+
+  constructor() {
+    // Reset flag when navigation completes
+    this.router.events.pipe(
+      filter(e => e instanceof NavigationEnd)
+    ).subscribe(() => {
+      this.isNavigatingSubject.next(false);
+    });
+  }
 
   get currentStep(): number {
     return this.currentStepSubject.value;
@@ -67,25 +82,48 @@ export class OnboardingStateService {
    * In a real app this would first call the API to save the step data.
    */
   completeCurrentAndNext(): void {
-    const updated = new Set(this.completedSteps);
-    updated.add(this.currentStep);
+    // Mark current step as complete
+    const updated = new Set(this.completedStepsSubject.getValue());
+    updated.add(this.currentStepSubject.getValue());
     this.completedStepsSubject.next(updated);
+
+    this.isNavigatingSubject.next(true); // ← disable button
 
     // Simulate auto-save
     this.saveStatusSubject.next('saving');
     setTimeout(() => {
       this.saveStatusSubject.next('saved');
+
       if (!this.isLastStep) {
-        this.currentStepSubject.next(this.currentStep + 1);
+        const nextStep = this.currentStepSubject.getValue() + 1;
+        const nextRoute = ONBOARDING_STEPS.find(s => s.id === nextStep)?.route;
+
+        // Broadcast next step
+        this.currentStepSubject.next(nextStep);
+
+        // Navigate to next step
+        if (nextRoute) {
+          this.router.navigate(['/onboarding', nextRoute]);
+        }
       }
+      else{
+          this.router.navigate(['/onboarding/congratulations']);
+        }
     }, 600);
   }
 
   goBack(): void {
-    if (!this.isFirstStep) {
-      this.currentStepSubject.next(this.currentStep - 1);
+  if (!this.isFirstStep) {
+    const prevStep = this.currentStepSubject.getValue() - 1;
+    const prevRoute = ONBOARDING_STEPS.find(s => s.id === prevStep)?.route;
+
+    this.currentStepSubject.next(prevStep);
+
+    if (prevRoute) {
+      this.router.navigate(['/onboarding', prevRoute]);
     }
   }
+}
 
   /** Reset save indicator after a delay */
   resetSaveStatus(): void {

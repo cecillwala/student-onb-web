@@ -41,6 +41,6 @@ export class Welcome {
   }
 
   startOnboarding(): void {
-    this.router.navigate(['/onboarding/wizard']);
+    this.router.navigate(['/onboarding/personal-details']);
   }
 }

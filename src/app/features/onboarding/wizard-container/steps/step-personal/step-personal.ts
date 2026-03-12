@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { SharedImports } from '../../../../shared/modules/shared.imports';
+import { SharedImports } from '../../../../../shared/modules/shared.imports';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { KENYA_COUNTIES, CONSTITUENCIES, WARDS, NATIONALITIES } from './step-personal.data';
-import { DropdownSelect } from '../../../../shared/components/dropdown-select/dropdown-select';
+import { KENYA_COUNTIES, CONSTITUENCIES, WARDS, NATIONALITIES, GUARDIAN_RELATIONSHIPS } from './step-personal.data';
+import { DropdownSelect } from '../../../../../shared/components/dropdown-select/dropdown-select';
 
 @Component({
   selector: 'app-step-personal',
@@ -19,6 +19,7 @@ export class StepPersonal implements OnInit {
   counties = KENYA_COUNTIES;
   constituencies: any[] = [];
   wards: any[] = [];
+  guardianRelationships = GUARDIAN_RELATIONSHIPS;
 
   phoneNumber: string = '';
   guardianPhoneNumber: string = '';
@@ -52,6 +53,8 @@ export class StepPersonal implements OnInit {
       guardianLastName: ['', Validators.required],
       guardianPhone: ['', Validators.required],
       guardianEmail: ['', Validators.email],
+      guardianOccupation: ['', Validators.required],
+      guardianRelationship: ['', Validators.required]
     });
   }
 

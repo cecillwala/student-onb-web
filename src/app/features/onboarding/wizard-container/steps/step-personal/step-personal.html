@@ -197,6 +197,31 @@
         </mat-form-field>
       </div>
 
+      <div class="form-group">
+        <label class="form-label">Guardian's Relationship<span class="required">*</span></label>
+        <app-dropdown-select
+          formControlName="guardianRelationship"
+          [data]="guardianRelationships"
+          [label]="'relationship'"
+          displayField="name"
+          valueField="id"
+          placeholder="Select relationship"
+          searchPlaceholder="Search relationship..."
+        ></app-dropdown-select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Guardian's Occupation <span class="required">*</span></label>
+        <mat-form-field appearance="outline" class="form-field">
+          <input
+            matInput
+            formControlName="guardianOccupation"
+            placeholder="Enter guardian's occupation"
+          />
+          <mat-error>Guardian's occupation is required</mat-error>
+        </mat-form-field>
+      </div>
+
     </div>
   </section>
 </form>

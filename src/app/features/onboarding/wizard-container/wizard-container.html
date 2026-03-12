@@ -7,7 +7,7 @@
     <div class="wizard-scroll-area">
       <!-- Step header -->
       <div class="step-header">
-        <span class="step-label">Step {{ currentStep }} of {{ state.totalSteps }}</span>
+        <span class="step-label">Step {{ currentStep() }} of {{ state.totalSteps }}</span>
         <h2 class="step-title">{{ currentStepData?.title }}</h2>
         <p class="step-desc">{{ currentStepData?.description }}</p>
       </div>
@@ -25,7 +25,8 @@
 
       <!-- Step content -->
       <div class="step-form-card" [class.summary-card]="state.isSummaryStep">
-        <ng-container [ngSwitch]="currentStep">
+        <router-outlet></router-outlet>
+        <!-- <ng-container [ngSwitch]="currentStep">
           <app-step-personal        *ngSwitchCase="1"></app-step-personal>
           <app-step-id-verification  *ngSwitchCase="2"></app-step-id-verification>
           <app-step-academic         *ngSwitchCase="3"></app-step-academic>
@@ -33,7 +34,7 @@
           <app-step-health           *ngSwitchCase="5"></app-step-health>
           <app-step-documents        *ngSwitchCase="6"></app-step-documents>
           <app-step-summary          *ngSwitchCase="7"></app-step-summary>
-        </ng-container>
+        </ng-container> -->
       </div>
     </div>
 
@@ -42,8 +43,8 @@
       <div class="nav-bar-inner">
         <button
           class="btn-back"
-          [disabled]="state.isFirstStep"
-          [class.disabled]="state.isFirstStep"
+          [disabled]="state.isFirstStep || isNavigating()"
+          [class.disabled]="state.isFirstStep || isNavigating()"
           (click)="onBack()"
         >
           <span class="material-icons">arrow_back</span>
@@ -54,28 +55,33 @@
           <span
             *ngFor="let step of state.steps"
             class="nav-pill"
-            [class.active]="step.id === currentStep"
+            [class.active]="step.id === currentStep()"
             [class.completed]="state.isStepCompleted(step.id)"
-            [class.accessible]="state.isStepAccessible(step.id) && step.id !== currentStep"
+            [class.accessible]="state.isStepAccessible(step.id) && step.id !== currentStep()"
             [class.disabled]="!state.isStepAccessible(step.id)"
             (click)="onPillClick(step)"
             [title]="step.title"
           ></span>
         </div>
-
         <button
           class="btn-next"
           [class.submit]="state.isSummaryStep"
+          [disabled]="isNavigating()"
+          [class.disabled]="isNavigating()"
           (click)="onNext()"
         >
-          <ng-container *ngIf="state.isSummaryStep; else normalNext">
-            Continue
+          
+        {{ state.isLastStep ? 'Review & Submit' : 'Save & Continue' }}
+        @if (isNavigating()) {
+          <div class="spinner"></div>
+        } @else {
+          @if(state.isLastStep){
             <span class="material-icons">send</span>
-          </ng-container>
-          <ng-template #normalNext>
-            {{ state.isLastStep ? 'Review & Submit' : 'Save & Continue' }}
+          }
+          @else{
             <span class="material-icons">arrow_forward</span>
-          </ng-template>
+          }
+        }
         </button>
       </div>
     </div>

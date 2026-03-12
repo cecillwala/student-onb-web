@@ -14,7 +14,7 @@
         <div
           class="step-circle"
           [class.active]="step.id === currentStep"
-          [class.completed]="state.isStepCompleted(step.id)"
+          [class.completed]="state.isStepCompleted(step.id) && step.id !== currentStep"
           [class.accessible]="state.isStepAccessible(step.id) && step.id !== currentStep && !state.isStepCompleted(step.id)"
           [class.disabled]="!state.isStepAccessible(step.id)"
           (click)="onStepClick(step)"
@@ -43,4 +43,4 @@
     <div class="help-title">💬 Need help?</div>
     <div class="help-text">Use the chat assistant for guidance on any step.</div>
   </div>
-</aside>
+</aside> 

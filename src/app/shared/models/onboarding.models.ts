@@ -15,6 +15,58 @@ export interface StudentInfo {
   indexNo: string;
 }
 
+export interface SelfieResult {
+  data: string | null;
+  fileName: string | null;
+  livenessVerified: boolean;
+  success: boolean;
+  confirmed: boolean;
+}
+
+export interface GhanaCardExtractedData {
+  nationalId: string;
+  idNumber: string;
+  dateOfBirth: string;
+  sex: string;
+  placeOfBirth: string;
+  dateIssued: string;
+  dateOfExpiry: string;
+  fullName: string;
+  firstName: string;
+  nationality: string;
+}
+
+export interface ModalData {
+  entity?: string;
+  data?: any;
+  [key: string]: any;
+}
+
+export interface OcrResponse {
+    success: boolean;
+    data: {
+      fields?: {
+        id_number?: { value: string };
+        document_number?: { value: string };
+        first_name?: { value: string };
+        full_name?: { value: string };
+        date_of_birth?: { value: string };
+        sex?: { value: string };
+        nationality?: { value: string };
+        place_of_birth?: { value: string };
+        date_of_issue?: { value: string };
+        date_of_expiry?: { value: string; };
+      };
+      confidence_scores?: any;
+      processing_time_ms?: number;
+      raw_text?: string;
+      bboxes?: any[];
+    };
+    message?: string;
+    error?: string;
+    timestamp?: string;
+  }
+
 export interface TrackingStage {
   id: string;
   title: string;
@@ -26,12 +78,13 @@ export interface TrackingStage {
 }
 
 export const ONBOARDING_STEPS: OnboardingStep[] = [
-  { id: 1, title: 'Personal Details', description: 'Basic info, address & guardian', icon: 'person', route: 'personal' },
+  { id: 1, title: 'Personal Details', description: 'Basic info, address & guardian', icon: 'person', route: 'personal-details' },
   { id: 2, title: 'ID Verification', description: 'National ID & selfie', icon: 'badge', route: 'id-verification' },
-  { id: 3, title: 'Academic Details', description: 'Study mode & interests', icon: 'school', route: 'academic' },
-  { id: 4, title: 'Accommodation', description: 'Housing preferences', icon: 'home', route: 'accommodation' },
-  { id: 5, title: 'Health Details', description: 'Medical info & insurance', icon: 'local_hospital', route: 'health' },
-  { id: 6, title: 'Document Upload', description: 'Certificates & letters', icon: 'upload_file', route: 'documents' },
+  { id: 3, title: 'Academic Details', description: 'Study mode & interests', icon: 'school', route: 'academic-details' },
+  { id: 4, title: 'Accommodation', description: 'Housing preferences', icon: 'home', route: 'accommodation-details' },
+  { id: 5, title: 'Health Details', description: 'Medical info & insurance', icon: 'local_hospital', route: 'health-information' },
+  { id: 6, title: 'Document Upload', description: 'Certificates & letters', icon: 'upload_file', route: 'documents-upload' },
+  { id: 7, title: 'Enrolment Summary', description: 'Summary of Application', icon: 'overview', route: 'application-summary' }
 ];
 
 // Colour tokens used throughout the app
