@@ -1,4 +1,4 @@
-<section class="form-section">
+<!-- <section class="form-section">
   <div class="form-grid cols-2">
     <div class="form-group">
       <label class="form-label">Blood Group <span class="required">*</span></label>
@@ -53,4 +53,179 @@
     <span class="drop-text">Click to upload or drag and drop</span>
     <span class="drop-hint">PDF or JPEG, max 5MB</span>
   </div>
-</section>
+</section> -->
+<form [formGroup]="form">
+
+  <!-- ======== Health Information ======== -->
+  <section class="form-section">
+    <h3 class="section-title">Health Information</h3>
+    <div class="form-grid cols-2">
+
+      <!-- Blood Group -->
+      <div class="form-group">
+        <label class="form-label">Blood Group <span class="required">*</span></label>
+        <app-dropdown-select
+          formControlName="bloodGroup"
+          [data]="bloodGroups"
+          displayField="name"
+          valueField="id"
+          placeholder="Select blood group"
+          searchPlaceholder="Search blood group..."
+        ></app-dropdown-select>
+      </div>
+
+      <!-- Preferred Hospital -->
+      <div class="form-group">
+        <label class="form-label">Preferred Hospital</label>
+        <mat-form-field appearance="outline" class="form-field full-width">
+          <input
+            matInput
+            formControlName="preferredHospital"
+            placeholder="Enter hospital name"
+          />
+        </mat-form-field>
+      </div>
+
+    
+
+    <!-- Medical Conditions -->
+    <div class="form-group">
+      <label class="form-label">Medical Conditions</label>
+      <app-dropdown-select-multiple
+        formControlName="medicalConditions"
+        [data]="medicalConditionsList"
+        displayField="name"
+        valueField="id"
+        placeholder="Select medical conditions"
+        searchPlaceholder="Search conditions..."
+      ></app-dropdown-select-multiple>
+    </div>
+
+     <!-- Allergies -->
+    <div class="form-group">
+      <label class="form-label">Allergies</label>
+      <app-dropdown-select-multiple
+        formControlName="allergies"
+        [data]="allergiesList"
+        displayField="name"
+        valueField="id"
+        placeholder="Select allergies"
+        searchPlaceholder="Search allergies..."
+      ></app-dropdown-select-multiple>
+    </div>
+    </div>
+
+  </section>
+
+  <!-- ======== Insurance Details ======== -->
+  <section class="form-section">
+    <h3 class="section-title">Insurance Details</h3>
+    <div class="form-grid cols-2">
+
+      <!-- Insurance Provider -->
+      <div class="form-group">
+        <label class="form-label">Insurance Provider</label>
+        <mat-form-field appearance="outline" class="form-field full-width">
+          <input
+            matInput
+            formControlName="insuranceProvider"
+            placeholder="Enter provider name"
+          />
+        </mat-form-field>
+      </div>
+
+      <!-- Policy Number -->
+      <div class="form-group">
+        <label class="form-label">Policy Number</label>
+        <mat-form-field appearance="outline" class="form-field full-width">
+          <input
+            matInput
+            formControlName="policyNumber"
+            placeholder="Enter policy number"
+          />
+        </mat-form-field>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ======== Emergency Contact ======== -->
+  <section class="form-section">
+    <h3 class="section-title">Emergency Contact</h3>
+    <div class="form-grid cols-2">
+
+      <!-- First Name -->
+      <div class="form-group">
+        <label class="form-label">First Name <span class="required">*</span></label>
+        <mat-form-field appearance="outline" class="form-field full-width">
+          <input
+            matInput
+            formControlName="emergencyFirstName"
+            placeholder="Enter first name"
+          />
+          <mat-error>First name is required</mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Last Name -->
+      <div class="form-group">
+        <label class="form-label">Last Name <span class="required">*</span></label>
+        <mat-form-field appearance="outline" class="form-field full-width">
+          <input
+            matInput
+            formControlName="emergencyLastName"
+            placeholder="Enter last name"
+          />
+          <mat-error>Last name is required</mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Relationship -->
+      <div class="form-group">
+        <label class="form-label">Relationship <span class="required">*</span></label>
+        <app-dropdown-select
+          formControlName="emergencyRelationship"
+          [data]="relationships"
+          displayField="name"
+          valueField="id"
+          placeholder="Select relationship"
+          searchPlaceholder="Search relationship..."
+        ></app-dropdown-select>
+      </div>
+
+      <!-- Phone -->
+      <div class="form-group phone-field">
+        <label class="form-label">Phone Number <span class="required">*</span></label>
+        <ngx-material-intl-tel-input
+          [preferredCountries]="['ke']"
+          [mainLabel]="''"
+          [enablePlaceholder]="true"
+          [enableSearch]="true"
+          (phoneChange)="onPhoneChange($event)"
+        ></ngx-material-intl-tel-input>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ======== Medical Report ======== -->
+  <section class="form-section">
+    <h3 class="section-title">Medical Report</h3>
+    <div class="form-group">
+      <label class="form-label">Upload Report</label>
+      <div class="drop-area" (click)="triggerFileInput()" (dragover)="onDragOver($event)" (drop)="onDrop($event)">
+        <span class="material-icons drop-icon">attach_file</span>
+        <span class="drop-text">Click to upload or drag and drop</span>
+        <span class="drop-hint">PDF or JPEG, max 5MB</span>
+      </div>
+      <input
+        type="file"
+        #fileInput
+        hidden
+        accept=".pdf,.jpg,.jpeg"
+        (change)="onFileChange($event)"
+      />
+    </div>
+  </section>
+
+</form>

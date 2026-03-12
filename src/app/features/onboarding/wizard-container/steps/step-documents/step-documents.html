@@ -1,10 +1,37 @@
-<div class="doc-upload-item" *ngFor="let doc of documents">
-  <div class="doc-header">
-    <span class="doc-name">{{ doc.name }} <span class="required" *ngIf="doc.required">*</span></span>
-    <span class="doc-desc">{{ doc.description }}</span>
+<section class="form-section">
+  <h3 class="section-title">Required Documents</h3>
+
+  <div class="docs-grid">
+    @for (doc of documents; track doc.name) {
+      <div class="doc-upload-item">
+        <div class="doc-header">
+          <span class="doc-name">
+            {{ doc.name }}
+            @if (doc.required) { <span class="required">*</span> }
+          </span>
+          <span class="doc-desc">{{ doc.description }}</span>
+        </div>
+
+        <div class="drop-area doc-drop" (click)="triggerInput(doc.name)">
+          @if (uploadedFiles[doc.name]) {
+            <span class="material-icons drop-icon-sm">check_circle</span>
+            <span class="drop-text-sm">{{ uploadedFiles[doc.name].name }}</span>
+          } @else {
+            <span class="material-icons drop-icon-sm">upload_file</span>
+            <span class="drop-text-sm">Click to upload</span>
+            <span class="drop-hint">PDF or JPEG · Max 5MB</span>
+          }
+        </div>
+
+        <input
+          type="file"
+          [id]="doc.name"
+          hidden
+          accept=".pdf,.jpg,.jpeg"
+          (change)="onFileChange($event, doc.name)"
+        />
+      </div>
+    }
   </div>
-  <div class="drop-area compact">
-    <span class="material-icons drop-icon-sm">attach_file</span>
-    <span class="drop-text-sm">Click to upload · PDF or JPEG · Max 5MB</span>
-  </div>
-</div>
+
+</section>

@@ -1,24 +1,19 @@
-<mat-form-field class="width" appearance="outline" floatLabel="always">
-  <mat-chip-grid #chipGrid aria-label="Country selection">
-    @for (country of selectedCountries; track country[valueField]) {
-    <mat-chip-row (removed)="removeCountry(country)" [removable]="true">
-      {{ getDisplayName(country) }}
-      <button matChipRemove>
-        <mat-icon>cancel</mat-icon>
-      </button>
-    </mat-chip-row>
-    }
-    <input
-      #searchInput
-      matInput
-      #autoTrigger="matAutocompleteTrigger"
-      [readonly]="true"
-      [matAutocomplete]="auto"
-      [matChipInputFor]="chipGrid"
-      [placeholder]="placeholder"
-      (click)="openAutocomplete(autoTrigger)"
-    />
-  </mat-chip-grid>
+<!-- Field with just the input -->
+<mat-form-field class="width form-field" appearance="outline" floatLabel="always">
+  <input
+    #searchInput
+    matInput
+    #autoTrigger="matAutocompleteTrigger"
+    [readonly]="true"
+    [matAutocomplete]="auto"
+    [placeholder]="placeholder"
+    (click)="openAutocomplete(autoTrigger)"
+  />
+  <mat-icon
+    class="dropdownicoon"
+    (click)="openAutocomplete(autoTrigger)"
+    matSuffix
+    >arrow_drop_down</mat-icon>
 
   <mat-autocomplete
     #auto="matAutocomplete"
@@ -34,17 +29,32 @@
     </div>
 
     @for (country of filteredData | async; track country[valueField]) {
-    <mat-option (click)="selectCountry(country)">
-      <span>{{ getDisplayName(country) }}</span>
-    </mat-option>
-    } @if ((filteredData | async)?.length === 0) {
-    <mat-option disabled> No countries found </mat-option>
+      <mat-option (click)="selectCountry(country)">
+        <span>{{ getDisplayName(country) }}</span>
+      </mat-option>
+    }
+    @if ((filteredData | async)?.length === 0) {
+      <mat-option disabled>No results found</mat-option>
     }
   </mat-autocomplete>
 </mat-form-field>
 
+<!-- Chips rendered below -->
+@if (selectedCountries.length > 0) {
+  <div class="chips-container">
+    @for (country of selectedCountries; track country[valueField]) {
+      <mat-chip-row (removed)="removeCountry(country)" [removable]="true">
+        {{ getDisplayName(country) }}
+        <button matChipRemove>
+          <mat-icon>cancel</mat-icon>
+        </button>
+      </mat-chip-row>
+    }
+  </div>
+}
+
 @if (ngControl.errors?.['required'] && ngControl.touched) {
-<mat-error style="font-size: 12px; line-height: 1.2">
-  At least one country is required
-</mat-error>
+  <mat-error style="font-size: 12px; line-height: 1.2">
+    At least one item is required
+  </mat-error>
 }
