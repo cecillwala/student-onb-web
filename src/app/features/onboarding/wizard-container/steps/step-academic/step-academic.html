@@ -1,16 +1,47 @@
-<section class="form-section">
-  <div class="form-group">
-    <label class="form-label">Mode of Study <span class="required">*</span></label>
-    <select class="form-select">
-      <option value="">Select mode</option>
-      <option>Full-time</option>
-      <option>Part-time</option>
-      <option>Distance Learning</option>
-    </select>
-  </div>
+<form [formGroup]="form">
+  <section class="form-section">
+    <h3 class="section-title">Academic Details</h3>
+    <div class="form-grid cols-2">
 
-  <div class="form-group" *ngFor="let f of textareaFields">
-    <label class="form-label">{{ f }}</label>
-    <textarea class="form-textarea" [placeholder]="'Describe your ' + f.toLowerCase()"></textarea>
-  </div>
-</section>
+      <!-- Mode of Study -->
+      <div class="form-group">
+        <label class="form-label">Mode of Study <span class="required">*</span></label>
+        <app-dropdown-select
+          formControlName="modeOfStudy"
+          [data]="studyModes"
+          displayField="name"
+          valueField="id"
+          placeholder="Select mode of study"
+          searchPlaceholder="Search mode..."
+        ></app-dropdown-select>
+      </div>
+
+      <!-- Extracurricular Interests -->
+    <div class="form-group">
+      <label class="form-label">Extracurricular Interests</label>
+      <app-dropdown-select-multiple
+        formControlName="extracurriculars"
+        [data]="extracurricularsList"
+        displayField="name"
+        valueField="id"
+        placeholder="Select extracurricular activities"
+        searchPlaceholder="Search activities..."
+      ></app-dropdown-select-multiple>
+    </div>
+
+      <!-- Special Support Needs -->
+      <div class="form-group">
+        <label class="form-label">Special Support Needs</label>
+        <mat-form-field appearance="outline" class="form-field full-width">
+          <textarea
+            matInput
+            formControlName="supportNeeds"
+            placeholder="Describe your special support needs"
+            rows="3"
+          ></textarea>
+        </mat-form-field>
+      </div>
+
+    </div>
+  </section>
+</form>

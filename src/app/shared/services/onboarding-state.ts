@@ -1,10 +1,18 @@
 import { inject, Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 import { ONBOARDING_STEPS, OnboardingStep } from '../models/onboarding.models';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 
 export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
+
+/**
+ * Each step component registers a save function that:
+ * - Validates the form
+ * - Calls the API
+ * - Returns an Observable<boolean> (true = success, false = validation failed)
+ */
+export type StepSaveFn = () => Observable<boolean>;
 
 @Injectable({ providedIn: 'root' })
 export class OnboardingStateService {
@@ -25,14 +33,38 @@ export class OnboardingStateService {
   readonly steps: OnboardingStep[] = ONBOARDING_STEPS;
   readonly totalSteps = ONBOARDING_STEPS.length;
 
+  /**
+   * The currently registered save function.
+   * Each step component sets this on init and clears it on destroy.
+   */
+  private currentSaveFn: StepSaveFn | null = null;
+
   constructor() {
-    // Reset flag when navigation completes
     this.router.events.pipe(
       filter(e => e instanceof NavigationEnd)
     ).subscribe(() => {
       this.isNavigatingSubject.next(false);
     });
   }
+
+  // ── Step registration ──
+
+  /**
+   * Called by each step component in ngOnInit.
+   * Registers a function that validates + saves the step data.
+   */
+  registerSaveFn(fn: StepSaveFn): void {
+    this.currentSaveFn = fn;
+  }
+
+  /**
+   * Called by each step component in ngOnDestroy.
+   */
+  clearSaveFn(): void {
+    this.currentSaveFn = null;
+  }
+
+  // ── Getters ──
 
   get currentStep(): number {
     return this.currentStepSubject.value;
@@ -54,15 +86,9 @@ export class OnboardingStateService {
     return Math.round((this.completedSteps.size / this.totalSteps) * 100);
   }
 
-  /**
-   * Check whether a given step can be navigated to.
-   * A step is accessible if it's the current step, already completed,
-   * or the very next step after the last completed one.
-   */
   isStepAccessible(stepId: number): boolean {
     if (this.completedSteps.has(stepId)) return true;
     if (stepId === this.currentStep) return true;
-    // Allow the next step after the highest completed step
     const maxCompleted = Math.max(0, ...Array.from(this.completedSteps));
     return stepId <= maxCompleted + 1;
   }
@@ -77,55 +103,67 @@ export class OnboardingStateService {
     }
   }
 
-  /**
-   * Mark the current step as complete and advance to the next.
-   * In a real app this would first call the API to save the step data.
-   */
+  // ── Save & Navigate ──
+
   completeCurrentAndNext(): void {
-    // Mark current step as complete
-    const updated = new Set(this.completedStepsSubject.getValue());
-    updated.add(this.currentStepSubject.getValue());
-    this.completedStepsSubject.next(updated);
-
-    this.isNavigatingSubject.next(true); // ← disable button
-
-    // Simulate auto-save
+    console.log('Save function registered:', this.currentSaveFn !== null);  // ← add this
+    this.isNavigatingSubject.next(true);
     this.saveStatusSubject.next('saving');
-    setTimeout(() => {
-      this.saveStatusSubject.next('saved');
 
-      if (!this.isLastStep) {
-        const nextStep = this.currentStepSubject.getValue() + 1;
-        const nextRoute = ONBOARDING_STEPS.find(s => s.id === nextStep)?.route;
+    // If a step has registered a save function, call it
+    const saveFn = this.currentSaveFn;
+    const save$: Observable<boolean> = saveFn ? saveFn() : of(true);
 
-        // Broadcast next step
-        this.currentStepSubject.next(nextStep);
-
-        // Navigate to next step
-        if (nextRoute) {
-          this.router.navigate(['/onboarding', nextRoute]);
+    save$.subscribe({
+      next: (success) => {
+        if (!success) {
+          // Validation failed — stay on current step
+          this.saveStatusSubject.next('error');
+          this.isNavigatingSubject.next(false);
+          this.resetSaveStatus();
+          return;
         }
-      }
-      else{
+
+        // Mark current step as complete
+        const updated = new Set(this.completedStepsSubject.getValue());
+        updated.add(this.currentStepSubject.getValue());
+        this.completedStepsSubject.next(updated);
+        this.saveStatusSubject.next('saved');
+
+        if (!this.isLastStep) {
+          const nextStep = this.currentStepSubject.getValue() + 1;
+          const nextRoute = ONBOARDING_STEPS.find(s => s.id === nextStep)?.route;
+
+          this.currentStepSubject.next(nextStep);
+
+          if (nextRoute) {
+            this.router.navigate(['/onboarding', nextRoute]);
+          }
+        } else {
           this.router.navigate(['/onboarding/congratulations']);
         }
-    }, 600);
+      },
+      error: () => {
+        this.saveStatusSubject.next('error');
+        this.isNavigatingSubject.next(false);
+        this.resetSaveStatus();
+      },
+    });
   }
 
   goBack(): void {
-  if (!this.isFirstStep) {
-    const prevStep = this.currentStepSubject.getValue() - 1;
-    const prevRoute = ONBOARDING_STEPS.find(s => s.id === prevStep)?.route;
+    if (!this.isFirstStep) {
+      const prevStep = this.currentStepSubject.getValue() - 1;
+      const prevRoute = ONBOARDING_STEPS.find(s => s.id === prevStep)?.route;
 
-    this.currentStepSubject.next(prevStep);
+      this.currentStepSubject.next(prevStep);
 
-    if (prevRoute) {
-      this.router.navigate(['/onboarding', prevRoute]);
+      if (prevRoute) {
+        this.router.navigate(['/onboarding', prevRoute]);
+      }
     }
   }
-}
 
-  /** Reset save indicator after a delay */
   resetSaveStatus(): void {
     setTimeout(() => this.saveStatusSubject.next('idle'), 2000);
   }

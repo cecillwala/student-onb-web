@@ -13,15 +13,15 @@
     <!-- Student card -->
     <div class="student-card">
       <div class="student-card-header">
-        <div class="student-avatar">{{ getInitials(student.name) }}</div>
+        <div class="student-avatar">{{ getInitials(student()?.name) }}</div>
         <div class="student-identity">
-          <span class="student-name">{{ student.name }}</span>
-          <span class="student-reg">{{ student.regNo }}</span>
+          <span class="student-name">{{ student()?.name }}</span>
+          <span class="student-reg">{{ student()?.regNo }}</span>
         </div>
       </div>
       <div class="student-card-body">
         <div class="detail-grid">
-          <div class="detail-item" *ngFor="let d of studentDetails">
+          <div class="detail-item" *ngFor="let d of studentDetails()">
             <span class="detail-label">{{ d.label }}</span>
             <span class="detail-value">{{ d.value }}</span>
           </div>

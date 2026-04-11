@@ -7,6 +7,7 @@ import { Subscription } from 'rxjs';
 import { Navbar } from "../../../shared/components/navbar/navbar";
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
+import { SessionService } from '../../../shared/services/session';
 
 @Component({
   selector: 'app-wizard-container',
@@ -20,7 +21,7 @@ export class WizardContainer implements OnInit, OnDestroy {
   currentStepData: OnboardingStep | undefined;
   saveStatus: SaveStatus = 'idle';
   lastStep = signal(this.currentStep() == 7 ? true : false);
-
+  session = inject(SessionService);
   private subs: Subscription[] = [];
   cd = inject(ChangeDetectorRef);
   isNavigating = signal(false);
@@ -45,6 +46,7 @@ export class WizardContainer implements OnInit, OnDestroy {
 
   onNext(): void {
     this.state.completeCurrentAndNext();
+    this.isNavigating.set(true);
   }
 
   onBack(): void {

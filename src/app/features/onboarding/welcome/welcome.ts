@@ -1,8 +1,10 @@
-import { Component } from '@angular/core';
-import { Router } from '@angular/router';
-import { ONBOARDING_STEPS, OnboardingStep, StudentInfo } from '../../../shared/models/onboarding.models';
-import { Navbar } from "../../../shared/components/navbar/navbar";
+import { Component, OnInit, signal } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { ONBOARDING_STEPS, OnboardingStep, StudentInfo } from '../../../shared/models/onboarding.models';
+import { Navbar } from '../../../shared/components/navbar/navbar';
+import { OnboardingApiService, VerifyTokenResponse } from '../../../shared/services/api/onboarding-api';
+import { SessionService } from '../../../shared/services/session';
 
 @Component({
   selector: 'app-welcome',
@@ -10,37 +12,104 @@ import { CommonModule } from '@angular/common';
   templateUrl: './welcome.html',
   styleUrl: './welcome.scss',
 })
-export class Welcome {
+export class Welcome implements OnInit {
   steps: OnboardingStep[] = ONBOARDING_STEPS;
 
-  // This would come from the API after magic link verification
-  student: StudentInfo = {
-    name: 'Lwala Cecil Joel Munala',
-    regNo: 'S13/07742/22',
-    programme: 'BSc. Computer Science',
-    department: 'Computer Science',
-    faculty: 'Faculty of Science',
-    indexNo: '28200001045',
-  };
+  student = signal<StudentInfo | null>(null);
+  studentDetails = signal<{ label: string; value: string }[]>([]);
 
-  studentDetails = [
-    { label: 'Programme', value: this.student.programme },
-    { label: 'Index Number', value: this.student.indexNo },
-    { label: 'Department', value: this.student.department },
-    { label: 'Faculty', value: this.student.faculty },
-  ];
+  isLoading = signal(true);
+  isStarting = signal(false);
+  errorMessage = signal('');
 
-  constructor(private router: Router) {}
+  private token: string | null = null;
 
-  getInitials(name: string): string {
-    return name
-      .split(' ')
-      .map(n => n[0])
-      .slice(0, 2)
-      .join('');
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private onboardingApi: OnboardingApiService,
+    private sessionService: SessionService,
+  ) {}
+
+  ngOnInit(): void {
+    this.token = this.route.snapshot.queryParamMap.get('token');
+
+    if (!this.token) {
+      this.errorMessage.set('No onboarding link provided. Please use the link sent to your email.');
+      this.isLoading.set(false);
+      return;
+    }
+
+    this.onboardingApi.verifyToken(this.token).subscribe({
+      next: (res: VerifyTokenResponse) => {
+        const info: StudentInfo = {
+          name: res.fullName,
+          regNo: res.regNo,
+          programme: res.programme,
+          department: res.department,
+          faculty: res.faculty,
+          indexNo: res.indexNumber,
+        };
+
+        this.student.set(info);
+        this.studentDetails.set([
+          { label: 'Programme', value: info.programme },
+          { label: 'Index Number', value: info.indexNo },
+          { label: 'Department', value: info.department },
+          { label: 'Faculty', value: info.faculty },
+        ]);
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        const message = err.error?.message ?? 'Unable to verify your onboarding link. Please try again or contact support.';
+        this.errorMessage.set(message);
+        this.isLoading.set(false);
+      },
+    });
+  }
+
+  getInitials(name: string | undefined): string {
+
+    let initials = "";
+    if(name != undefined){
+      const initials = name
+        .split(' ')
+        .map(n => n[0])
+        .slice(0, 2)
+        .join('');
+      console.log(initials);
+      return initials;
+    }
+    return "";
   }
 
   startOnboarding(): void {
-    this.router.navigate(['/onboarding/personal-details']);
+    if (!this.token) return;
+
+    this.isStarting.set(true);
+
+    // For now, we pass a placeholder national ID — 
+    // the identity confirmation step will be added later.
+    // The backend still requires it, so we use the masked ID hint.
+    this.onboardingApi.verifyIdentity(this.token, '').subscribe({
+      next: (session) => {
+        this.sessionService.setSession({
+          sessionToken: session.sessionToken,
+          studentId: session.studentId,
+          firstName: session.firstName,
+          lastName: session.lastName,
+          regNo: session.regNo,
+          programme: session.programme,
+          currentStep: session.currentStep,
+          status: session.status,
+        });
+        this.router.navigate(['/onboarding/personal-details']);
+      },
+      error: (err) => {
+        this.isStarting.set(false);
+        const message = err.error?.message ?? 'Failed to start onboarding. Please try again.';
+        this.errorMessage.set(message);
+      },
+    });
   }
 }

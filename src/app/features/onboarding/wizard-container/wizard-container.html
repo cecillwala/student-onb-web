@@ -1,4 +1,8 @@
-<app-navbar [showProfile]="true"></app-navbar>
+<app-navbar 
+  [showProfile]="true"
+  [initials]="`${session.session()?.lastName?.charAt(0)}${session.session()?.firstName?.charAt(0)}`"
+  [first_name]="`${session.session()?.firstName}`">
+</app-navbar>
 
 <div class="wizard-layout">
   <!-- Main content -->

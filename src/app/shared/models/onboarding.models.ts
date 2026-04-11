@@ -84,7 +84,7 @@ export const ONBOARDING_STEPS: OnboardingStep[] = [
   { id: 4, title: 'Accommodation', description: 'Housing preferences', icon: 'home', route: 'accommodation-details' },
   { id: 5, title: 'Health Details', description: 'Medical info & insurance', icon: 'local_hospital', route: 'health-information' },
   { id: 6, title: 'Document Upload', description: 'Certificates & letters', icon: 'upload_file', route: 'documents-upload' },
-  { id: 7, title: 'Enrolment Summary', description: 'Summary of Application', icon: 'overview', route: 'application-summary' }
+  { id: 7, title: 'Enrolment Summary', description: 'Summary of Application', icon: 'article', route: 'application-summary' }
 ];
 
 // Colour tokens used throughout the app

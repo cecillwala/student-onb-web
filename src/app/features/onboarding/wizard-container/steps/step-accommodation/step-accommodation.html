@@ -1,47 +1,253 @@
-<section class="form-section">
-  <label class="form-label">Residency Status <span class="required">*</span></label>
-  <div class="radio-group">
-    <label class="radio-card" [class.selected]="residency === 'resident'" (click)="residency = 'resident'">
-      <span class="radio-dot" [class.active]="residency === 'resident'"></span>
-      <span class="material-icons radio-icon">apartment</span>
-      <span>Resident (On-Campus)</span>
-    </label>
-    <label class="radio-card" [class.selected]="residency === 'non-resident'" (click)="residency = 'non-resident'">
-      <span class="radio-dot" [class.active]="residency === 'non-resident'"></span>
-      <span class="material-icons radio-icon">home</span>
-      <span>Non-Resident (Off-Campus)</span>
-    </label>
-  </div>
-</section>
+<form [formGroup]="form">
 
-<section class="form-section" *ngIf="residency === 'resident'">
-  <h3 class="section-title">Hostel Preferences</h3>
-  <div class="form-grid cols-3">
-    <div class="form-group">
-      <label class="form-label">Preferred Hostel</label>
-      <select class="form-select"><option value="">Select hostel</option></select>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Room Type</label>
-      <select class="form-select"><option value="">Select type</option></select>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Bed Preference</label>
-      <select class="form-select"><option value="">Select bed</option></select>
-    </div>
-  </div>
-</section>
+  <!-- ======== Residence Type ======== -->
+  <section class="form-section">
+    <h3 class="section-title">Residence Preference</h3>
+    <div class="form-grid cols-2">
 
-<section class="form-section" *ngIf="residency === 'non-resident'">
-  <div class="form-group">
-    <label class="form-label">Off-Campus Location</label>
-    <input class="form-input" placeholder="Enter your off-campus address" />
-  </div>
-</section>
+      <!-- Resident Status -->
+      <div class="form-group">
+        <label class="form-label">Residence Type <span class="required">*</span></label>
+        <app-dropdown-select
+          formControlName="residenceType"
+          [data]="residenceTypes"
+          displayField="name"
+          valueField="id"
+          placeholder="Select residence type"
+          searchPlaceholder="Search..."
+        ></app-dropdown-select>
+      </div>
 
-<section class="form-section">
-  <div class="form-group">
-    <label class="form-label">Special Accommodation Needs</label>
-    <textarea class="form-textarea" placeholder="Describe any special requirements"></textarea>
-  </div>
-</section>
+      <!-- ── Resident fields ── -->
+      @if (isResident) {
+
+        <div class="form-group">
+          <label class="form-label">Hostel Preference</label>
+          <app-dropdown-select
+            formControlName="hostelPreference"
+            [data]="hostelOptions"
+            displayField="name"
+            valueField="id"
+            placeholder="Select hostel"
+            searchPlaceholder="Search hostel..."
+          ></app-dropdown-select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Room Type</label>
+          <app-dropdown-select
+            formControlName="roomType"
+            [data]="roomTypes"
+            displayField="name"
+            valueField="id"
+            placeholder="Select room type"
+            searchPlaceholder="Search room type..."
+          ></app-dropdown-select>
+        </div>
+
+      }
+
+      <!-- ── Non-resident fields ── -->
+      @if (!isResident) {
+
+        <!-- Reason -->
+        <div class="form-group">
+          <label class="form-label">Reason for Living Off Campus <span class="required">*</span></label>
+          <app-dropdown-select
+            formControlName="offCampusReason"
+            [data]="offCampusReasons"
+            displayField="name"
+            valueField="id"
+            placeholder="Select reason"
+            searchPlaceholder="Search reason..."
+          ></app-dropdown-select>
+        </div>
+
+        <!-- Guardian Awareness -->
+        <div class="form-group">
+          <label class="form-label">Are your parents/guardian aware? <span class="required">*</span></label>
+          <div class="radio-group">
+            <label
+              class="radio-card"
+              [class.selected]="form.get('guardianAware')?.value === true"
+              (click)="form.get('guardianAware')?.setValue(true)"
+            >
+              <span class="radio-dot" [class.active]="form.get('guardianAware')?.value === true"></span>
+              Yes, they are aware
+            </label>
+            <label
+              class="radio-card"
+              [class.selected]="form.get('guardianAware')?.value === false"
+              (click)="form.get('guardianAware')?.setValue(false)"
+            >
+              <span class="radio-dot" [class.active]="form.get('guardianAware')?.value === false"></span>
+              No, they are not aware
+            </label>
+          </div>
+        </div>
+
+      }
+
+    </div>
+  </section>
+
+  <!-- ======== Resident Special Needs ======== -->
+  @if (isResident) {
+    <section class="form-section">
+      <h3 class="section-title">Special Accommodation Needs</h3>
+      <div class="form-group">
+        <label class="form-label">Special Needs</label>
+        <mat-form-field appearance="outline" class="form-field full-width">
+          <textarea
+            matInput
+            formControlName="specialNeeds"
+            placeholder="Describe any special accommodation needs"
+            rows="3"
+          ></textarea>
+        </mat-form-field>
+      </div>
+    </section>
+  }
+
+  <!-- ======== Off Campus Details ======== -->
+  @if (!isResident) {
+
+    <section class="form-section">
+      <h3 class="section-title">Off Campus Location</h3>
+      <div class="form-grid cols-2">
+
+        <!-- Building Name -->
+        <div class="form-group">
+          <label class="form-label">Building Name <span class="required">*</span></label>
+          <mat-form-field appearance="outline" class="form-field full-width">
+            <input
+              matInput
+              formControlName="buildingName"
+              placeholder="Enter building name"
+            />
+          </mat-form-field>
+        </div>
+
+        <!-- Location -->
+        <div class="form-group">
+          <label class="form-label">Location <span class="required">*</span></label>
+          <app-dropdown-select
+            formControlName="offCampusLocation"
+            [data]="offCampusLocations"
+            displayField="name"
+            valueField="id"
+            placeholder="Select location"
+            searchPlaceholder="Search location..."
+          ></app-dropdown-select>
+        </div>
+
+        <!-- Room Type -->
+        <div class="form-group">
+          <label class="form-label">Room Type <span class="required">*</span></label>
+          <app-dropdown-select
+            formControlName="offCampusRoomType"
+            [data]="offCampusRoomTypes"
+            displayField="name"
+            valueField="id"
+            placeholder="Select room type"
+            searchPlaceholder="Search..."
+            (selectionChange)="onRoomTypeChange($event)"
+          ></app-dropdown-select>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ======== Landlord Details ======== -->
+    <section class="form-section">
+      <h3 class="section-title">Landlord Details</h3>
+      <div class="form-grid cols-2">
+
+        <!-- First Name -->
+        <div class="form-group">
+          <label class="form-label">First Name <span class="required">*</span></label>
+          <mat-form-field appearance="outline" class="form-field full-width">
+            <input
+              matInput
+              formControlName="landlordFirstName"
+              placeholder="Enter landlord's first name"
+            />
+          </mat-form-field>
+        </div>
+
+        <!-- Last Name -->
+        <div class="form-group">
+          <label class="form-label">Last Name <span class="required">*</span></label>
+          <mat-form-field appearance="outline" class="form-field full-width">
+            <input
+              matInput
+              formControlName="landlordLastName"
+              placeholder="Enter landlord's last name"
+            />
+          </mat-form-field>
+        </div>
+
+        <!-- Phone -->
+        <div class="form-group phone-field">
+          <label class="form-label">Phone Number <span class="required">*</span></label>
+          <ngx-material-intl-tel-input
+          [preferredCountries]="['ke']"
+          [mainLabel]="''"
+          [enablePlaceholder]="true"
+          [enableSearch]="true"
+          (phoneChange)="onPhoneChange($event, 'landlordPhone')"
+        ></ngx-material-intl-tel-input>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ======== Roommate Details ======== -->
+    @if (isSharedRoom) {
+      <section class="form-section">
+        <h3 class="section-title">Roommate Details</h3>
+        <div class="form-grid cols-2">
+
+          <!-- First Name -->
+          <div class="form-group">
+            <label class="form-label">First Name <span class="required">*</span></label>
+            <mat-form-field appearance="outline" class="form-field full-width">
+              <input
+                matInput
+                formControlName="roommateFirstName"
+                placeholder="Enter roommate's first name"
+              />
+            </mat-form-field>
+          </div>
+
+          <!-- Last Name -->
+          <div class="form-group">
+            <label class="form-label">Last Name <span class="required">*</span></label>
+            <mat-form-field appearance="outline" class="form-field full-width">
+              <input
+                matInput
+                formControlName="roommateLastName"
+                placeholder="Enter roommate's last name"
+              />
+            </mat-form-field>
+          </div>
+
+          <!-- Phone -->
+          <div class="form-group phone-field">
+            <label class="form-label">Phone Number</label>
+            <ngx-material-intl-tel-input
+              [preferredCountries]="['ke']"
+              [mainLabel]="''"
+              [enablePlaceholder]="true"
+              [enableSearch]="true"
+              (phoneChange)="onPhoneChange($event, 'roomatePhone')"
+            ></ngx-material-intl-tel-input>
+          </div>
+
+        </div>
+      </section>
+    }
+
+  }
+
+</form>

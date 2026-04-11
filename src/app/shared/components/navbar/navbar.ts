@@ -10,5 +10,7 @@ import { ThemeService } from '../../services/theme.service';
 })
 export class Navbar {
   @Input() showProfile = false;
+  @Input() initials = "";
+  @Input() first_name = "";
   themeService = inject(ThemeService);
 }

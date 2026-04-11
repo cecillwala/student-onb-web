@@ -377,6 +377,12 @@ ngx-material-intl-tel-input {
   }
 }
 
+:host ::ng-deep .form-field.centered {
+  textarea.mat-mdc-input-element {
+    text-align: center;
+  }
+}
+
 .doc-drop {
   aspect-ratio: unset;    // remove square constraint
   min-height: 80px;

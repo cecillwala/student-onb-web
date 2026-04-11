@@ -1,8 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { SharedImports } from '../../../../../shared/modules/shared.imports';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { KENYA_COUNTIES, CONSTITUENCIES, WARDS, NATIONALITIES, GUARDIAN_RELATIONSHIPS } from './step-personal.data';
 import { DropdownSelect } from '../../../../../shared/components/dropdown-select/dropdown-select';
+import { OnboardingStateService } from '../../../../../shared/services/onboarding-state';
+import { OnboardingApiService, PersonalDetailsRequest } from '../../../../../shared/services/api/onboarding-api';
+import { Observable, of, map, catchError } from 'rxjs';
+import { SessionService } from '../../../../../shared/services/session';
 
 @Component({
   selector: 'app-step-personal',
@@ -11,7 +15,7 @@ import { DropdownSelect } from '../../../../../shared/components/dropdown-select
   templateUrl: './step-personal.html',
   styleUrls: ['../shared-step.scss'],
 })
-export class StepPersonal implements OnInit {
+export class StepPersonal implements OnInit, OnDestroy {
   form!: FormGroup;
 
   // Dropdown data sources
@@ -24,6 +28,10 @@ export class StepPersonal implements OnInit {
   phoneNumber: string = '';
   guardianPhoneNumber: string = '';
 
+  isLoading = true;
+
+  sessionService = inject(SessionService);
+
   // Phone input config
   phoneConfig = {
     preferredCountries: ['ke'],
@@ -31,9 +39,31 @@ export class StepPersonal implements OnInit {
     enableSearch: true,
   };
 
-  constructor(private fb: FormBuilder) {}
+  // Static fields that remain as plain inputs
+  genderOptions = [
+    { id: 'MALE', name: 'Male' },
+    { id: 'FEMALE', name: 'Female' },
+    { id: 'OTHER', name: 'Other' },
+  ];
+
+  religionOptions = [
+    { id: 'CHRISTIANITY', name: 'Christianity' },
+    { id: 'ISLAM', name: 'Islam' },
+    { id: 'HINDUISM', name: 'Hinduism' },
+    { id: 'TRADITIONAL', name: 'Traditional' },
+    { id: 'OTHER', name: 'Other' },
+    { id: 'NONE', name: 'Prefer not to say' },
+  ];
+
+  constructor(
+    private fb: FormBuilder,
+    private state: OnboardingStateService,
+    private api: OnboardingApiService,
+  ) {}
 
   ngOnInit(): void {
+    // Add this temporarily in step-personal.ts ngOnInit:
+    console.log('Session token:', this.sessionService?.token());
     this.form = this.fb.group({
       // Student Information
       gender: ['', Validators.required],
@@ -54,16 +84,76 @@ export class StepPersonal implements OnInit {
       guardianPhone: ['', Validators.required],
       guardianEmail: ['', Validators.email],
       guardianOccupation: ['', Validators.required],
-      guardianRelationship: ['', Validators.required]
+      guardianRelationship: ['', Validators.required],
     });
+
+    // Load saved data from backend
+    this.api.getPersonalDetails().subscribe({
+      next: (data) => {
+        console.log(`DATA: ${data}`);
+        if (data && data.gender) {
+          this.form.patchValue(data);
+
+          // Restore cascading dropdowns
+          if (data.county) {
+            const county = KENYA_COUNTIES.find(c => c.name === data.county || c.name === data.county);
+            if (county) {
+              this.constituencies = CONSTITUENCIES.filter(c => c.countyId === county.id);
+            }
+          }
+          if (data.constituency) {
+            const constituency = CONSTITUENCIES.find(c => c.name === data.constituency || c.name === data.constituency);
+            if (constituency) {
+              this.wards = WARDS.filter(w => w.constituencyId === constituency.id);
+            }
+          }
+        }
+        this.isLoading = false;
+      },
+      error: () => {
+        this.isLoading = false;
+      },
+    });
+
+    // Register save function with wizard
+    this.state.registerSaveFn(() => this.save());
   }
 
+  ngOnDestroy(): void {
+    this.state.clearSaveFn();
+  }
+
+  // ── Save function called by wizard's "Save & Continue" ──
+  private save(): Observable<boolean> {
+    console.log('Form valid:', this.form.valid);
+    console.log('Form values:', this.form.getRawValue());
+    console.log('Invalid controls:', Object.keys(this.form.controls).filter(k => this.form.controls[k].invalid));
+
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return of(false);
+    }
+
+    const data: PersonalDetailsRequest = this.form.getRawValue();
+
+    return this.api.savePersonalDetails(data).pipe(
+      map(() => true),
+      catchError(() => of(false)),
+    );
+  }
+
+  // --- Phone handlers ---
+
   onPhoneChange(event: any, field: 'phone' | 'guardianPhone'): void {
+    console.log('Phone event:', field, event);
+    console.log('Phone event type:', typeof event);
     const value = event?.e164Number || event?.internationalNumber || event?.number || event;
     if (field === 'phone') {
       this.phoneNumber = value;
+      this.form.get('phone')?.setValue(value);
     } else {
       this.guardianPhoneNumber = value;
+      this.form.get('guardianPhone')?.setValue(value);
     }
   }
 
@@ -90,20 +180,4 @@ export class StepPersonal implements OnInit {
       (w) => w.constituencyId === selectedConstituency.id
     );
   }
-
-  // Static fields that remain as plain inputs
-  genderOptions = [
-    { id: 'MALE', name: 'Male' },
-    { id: 'FEMALE', name: 'Female' },
-    { id: 'OTHER', name: 'Other' },
-  ];
-
-  religionOptions = [
-    { id: 'CHRISTIANITY', name: 'Christianity' },
-    { id: 'ISLAM', name: 'Islam' },
-    { id: 'HINDUISM', name: 'Hinduism' },
-    { id: 'TRADITIONAL', name: 'Traditional' },
-    { id: 'OTHER', name: 'Other' },
-    { id: 'NONE', name: 'Prefer not to say' },
-  ];
 }

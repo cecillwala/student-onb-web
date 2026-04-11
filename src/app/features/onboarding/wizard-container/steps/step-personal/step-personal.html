@@ -69,7 +69,7 @@
           [preferredCountries]="['ke']"
           [enablePlaceholder]="true"
           [enableSearch]="true"
-          (phoneChange)="onPhoneChange($event, 'phone')"
+          fieldControlName="phone"
         ></ngx-material-intl-tel-input>
       </div>
 
@@ -89,7 +89,7 @@
           [data]="counties"
           [label]="'county'"
           displayField="name"
-          valueField="id"
+          valueField="name"
           placeholder="Select county"
           searchPlaceholder="Search county..."
           (selectionChange)="onCountyChange($event)"
@@ -104,7 +104,7 @@
           [data]="constituencies"
           displayField="name"
           [label]="'constituency'"
-          valueField="id"
+          valueField="name"
           placeholder="Select constituency"
           searchPlaceholder="Search constituency..."
           (selectionChange)="onConstituencyChange($event)"
@@ -119,7 +119,7 @@
           [data]="wards"
           [label]="'ward'"
           displayField="name"
-          valueField="id"
+          valueField="name"
           placeholder="Select ward"
           searchPlaceholder="Search ward..."
         ></app-dropdown-select>
@@ -179,7 +179,7 @@
           [mainLabel]="''"
           [enablePlaceholder]="true"
           [enableSearch]="true"
-          (phoneChange)="onPhoneChange($event, 'guardianPhone')"
+          fieldControlName="guardianPhone"
         ></ngx-material-intl-tel-input>
       </div>
 
@@ -204,7 +204,7 @@
           [data]="guardianRelationships"
           [label]="'relationship'"
           displayField="name"
-          valueField="id"
+          valueField="name"
           placeholder="Select relationship"
           searchPlaceholder="Search relationship..."
         ></app-dropdown-select>

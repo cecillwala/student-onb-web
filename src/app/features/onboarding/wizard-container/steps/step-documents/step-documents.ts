@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { SharedImports } from '../../../../../shared/modules/shared.imports';
 
 @Component({
   selector: 'app-step-documents',
   standalone: true,
-  imports: [CommonModule],
+  imports: [...SharedImports],
   templateUrl: './step-documents.html',
   styleUrls: ['../shared-step.scss'],
 })
