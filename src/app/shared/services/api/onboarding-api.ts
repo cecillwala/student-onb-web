@@ -46,8 +46,7 @@ export interface PersonalDetailsRequest {
 
 export interface AcademicDetailsRequest {
   modeOfStudy: string;
-  academicInterests: string;
-  learningSupportNeeds: string;
+  specialSupportNeeds: string;
   extracurricularActivities: string;
 }
 
@@ -158,8 +157,9 @@ export class OnboardingApiService {
     return this.http.get<AcademicDetailsRequest>(`${this.baseUrl}/academic-details`);
   }
 
-  saveAcademicDetails(data: AcademicDetailsRequest): Observable<any> {
-    return this.http.post(`${this.baseUrl}/academic-details`, data);
+  saveAcademicDetails(data: AcademicDetailsRequest, token: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/academic-details`, data, {
+      params: { token }});
   }
 
   updateAcademicDetails(data: AcademicDetailsRequest): Observable<any> {

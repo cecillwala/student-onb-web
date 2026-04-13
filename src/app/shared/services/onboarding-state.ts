@@ -120,14 +120,6 @@ export class OnboardingStateService {
 
     save$.subscribe({
       next: (success) => {
-        if (!success) {
-          // Validation failed — stay on current step
-          this.saveStatusSubject.next('error');
-          this.isNavigatingSubject.next(false);
-          this.resetSaveStatus();
-          return;
-        }
-
         // Mark current step as complete
         const updated = new Set(this.completedStepsSubject.getValue());
         updated.add(this.currentStepSubject.getValue());

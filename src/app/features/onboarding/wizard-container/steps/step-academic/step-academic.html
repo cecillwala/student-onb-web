@@ -10,7 +10,7 @@
           formControlName="modeOfStudy"
           [data]="studyModes"
           displayField="name"
-          valueField="id"
+          valueField="name"
           placeholder="Select mode of study"
           searchPlaceholder="Search mode..."
         ></app-dropdown-select>
@@ -20,10 +20,10 @@
     <div class="form-group">
       <label class="form-label">Extracurricular Interests</label>
       <app-dropdown-select-multiple
-        formControlName="extracurriculars"
+        formControlName="extraCurricularActivities"
         [data]="extracurricularsList"
         displayField="name"
-        valueField="id"
+        valueField="name"
         placeholder="Select extracurricular activities"
         searchPlaceholder="Search activities..."
       ></app-dropdown-select-multiple>
@@ -35,7 +35,7 @@
         <mat-form-field appearance="outline" class="form-field full-width">
           <textarea
             matInput
-            formControlName="supportNeeds"
+            formControlName="specialSupportNeeds"
             placeholder="Describe your special support needs"
             rows="3"
           ></textarea>

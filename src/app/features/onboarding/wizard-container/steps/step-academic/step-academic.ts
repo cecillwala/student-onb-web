@@ -5,6 +5,8 @@ import { OnboardingStateService } from '../../../../../shared/services/onboardin
 import { SharedImports } from '../../../../../shared/modules/shared.imports';
 import { DropdownSelect } from '../../../../../shared/components/dropdown-select/dropdown-select';
 import { DropdownSelectMultiple } from '../../../../../shared/components/dropdown-select-multiple/dropdown-select-multiple';
+import { catchError, map, Observable, of } from 'rxjs';
+import { AcademicDetailsRequest, OnboardingApiService } from '../../../../../shared/services/api/onboarding-api';
 
 @Component({
   selector: 'app-step-academic',
@@ -17,6 +19,7 @@ export class StepAcademic implements OnInit {
 
   private fb = inject(FormBuilder);
   state = inject(OnboardingStateService);
+  api = inject(OnboardingApiService);
 
   form!: FormGroup;
 
@@ -28,14 +31,36 @@ export class StepAcademic implements OnInit {
 
   ngOnInit(): void {
     this.buildForm();
+    this.state.registerSaveFn(() => this.save());
+  }
+
+   ngOnDestroy(): void {
+      this.state.clearSaveFn();
+    }
+  
+  private save(): Observable<boolean> {
+      console.log('Form valid:', this.form.valid);
+      console.log('Form values:', this.form.getRawValue());
+      console.log('Invalid controls:', Object.keys(this.form.controls).filter(k => this.form.controls[k].invalid));
+  
+      if (this.form.invalid) {
+        this.form.markAllAsTouched();
+        console.log("Invalid")
+        return of(false);
+      }
+  
+      const data: AcademicDetailsRequest = this.form.getRawValue();
+      return this.api.saveAcademicDetails(data, localStorage.getItem('token') ?? '').pipe(
+        map(() => true),
+        catchError(() => of(false)),
+      );
   }
 
   private buildForm(): void {
   this.form = this.fb.group({
     modeOfStudy:      [null, Validators.required],
-    courseInterests:  [[]],
-    supportNeeds:     [''],
-    extracurriculars: [[]],
+    specialSupportNeeds:     [''],
+    extraCurricularActivities: [[]],
   });
 }
 
