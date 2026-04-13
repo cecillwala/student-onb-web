@@ -6,8 +6,9 @@ import { OnboardingStateService, SaveStatus } from '../../../shared/services/onb
 import { Subscription } from 'rxjs';
 import { Navbar } from "../../../shared/components/navbar/navbar";
 import { CommonModule } from '@angular/common';
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 import { SessionService } from '../../../shared/services/session';
+import { OnboardingApiService } from '../../../shared/services/api/onboarding-api';
 
 @Component({
   selector: 'app-wizard-container',
@@ -24,20 +25,28 @@ export class WizardContainer implements OnInit, OnDestroy {
   session = inject(SessionService);
   private subs: Subscription[] = [];
   cd = inject(ChangeDetectorRef);
+  api = inject(OnboardingApiService);
   isNavigating = signal(false);
+  navigate = inject(Router);
 
 
-  ngOnInit(): void {
-    console.log(`Current Step: ${this.currentStep()}`);
-    this.cd.detectChanges();
-    this.subs.push(
-      this.state.currentStep$.subscribe(step => {
-        this.currentStep.set(step);
-        this.currentStepData = this.state.steps.find(s => s.id === step);
-      }),
-      this.state.saveStatus$.subscribe(status => (this.saveStatus = status))
-    );
-    this.state.isNavigating$.subscribe(v => this.isNavigating.set(v));
+  async ngOnInit(): Promise<void> {
+    
+    this.api.getCurrentStep(localStorage.getItem('token') ?? '').subscribe((res) => {
+      this.state.setCurrentStep(res + 1);
+      this.cd.detectChanges();
+      this.subs.push(
+        this.state.currentStep$.subscribe(step => {
+          this.currentStep.set(step);
+          this.currentStepData = this.state.steps.find(s => s.id === step);
+        }),
+        this.state.saveStatus$.subscribe(status => (this.saveStatus = status))
+      );
+
+      this.state.isNavigating$.subscribe(v => this.isNavigating.set(v));   
+      console.log(this.currentStepData);
+      this.navigate.navigate([`/onboarding/${this.currentStepData?.route}`])
+    });
   }
 
   ngOnDestroy(): void {

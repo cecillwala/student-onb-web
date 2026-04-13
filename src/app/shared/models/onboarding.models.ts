@@ -23,6 +23,14 @@ export interface SelfieResult {
   confirmed: boolean;
 }
 
+export interface IDResult {
+  data: string | null;
+  fileName: string | null;
+  livenessVerified: boolean;
+  success: boolean;
+  confirmed: boolean;
+}
+
 export interface GhanaCardExtractedData {
   nationalId: string;
   idNumber: string;

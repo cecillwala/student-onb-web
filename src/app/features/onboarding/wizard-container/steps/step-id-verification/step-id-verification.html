@@ -1,25 +1,33 @@
-<div class="form-grid cols-2">
-  <div class="upload-zone" (click)="captureNationalId()">
-    <h3 class="section-title">National ID Photo</h3>
-    <div class="drop-area">
-      <span class="material-icons drop-icon">photo_camera</span>
-      <span class="drop-text">Upload ID photo</span>
-      <span class="drop-hint">JPEG or PNG, max 5MB</span>
+<form [formGroup]="form">
+  <div class="form-grid cols-2">
+    <div class="upload-zone" (click)="captureNationalId()">
+      <h3 class="section-title">National ID Photo</h3>
+        <div class="drop-area">
+          <img
+          [src]="nationalId()"
+          />
+          <!-- <span class="material-icons drop-icon">photo_camera</span> -->
+          <span class="drop-text">Upload ID photo</span>
+          <span class="drop-hint">JPEG or PNG, max 5MB</span>
+        </div>
+    </div>
+    <div class="upload-zone" (click)="openCamera()">
+      <h3 class="section-title">Take a Selfie</h3>
+        <div class="drop-area">
+          <img
+            [src]="selfie()"
+          />
+          <!-- <span class="material-icons drop-icon">face</span> -->
+          <span class="drop-text">Open camera</span>
+          <span class="drop-hint">Liveness check required</span>
+        </div>
     </div>
   </div>
-  <div class="upload-zone" (click)="openCamera()">
-    <h3 class="section-title">Take a Selfie</h3>
-    <div class="drop-area">
-      <span class="material-icons drop-icon">face</span>
-      <span class="drop-text">Open camera</span>
-      <span class="drop-hint">Liveness check required</span>
-    </div>
+  <div class="info-banner">
+    <span class="material-icons">info</span>
+    <span>
+      <strong>Tips:</strong> Ensure your ID is well-lit with all text visible.
+      For the selfie, look directly at the camera in good lighting. Remove hats and glasses.
+    </span>
   </div>
-</div>
-<div class="info-banner">
-  <span class="material-icons">info</span>
-  <span>
-    <strong>Tips:</strong> Ensure your ID is well-lit with all text visible.
-    For the selfie, look directly at the camera in good lighting. Remove hats and glasses.
-  </span>
-</div>
+</form>

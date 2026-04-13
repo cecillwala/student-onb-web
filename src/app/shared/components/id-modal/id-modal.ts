@@ -5,7 +5,7 @@ import { ModalService } from '../../services/modal-service';
 import { NotificationService } from '../../services/notification-service';
 import { HttpClient } from '@angular/common/http';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { GhanaCardExtractedData, OcrResponse, SelfieResult } from '../../models/onboarding.models';
+import { GhanaCardExtractedData, IDResult, OcrResponse, SelfieResult } from '../../models/onboarding.models';
 import { ActivatedRoute } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
@@ -417,5 +417,36 @@ export class IdModal {
 
   ngOnDestroy() {
     this.stream?.getTracks().forEach((track) => track.stop());
+  }
+
+  saveImage(){
+    if (!this.frameCanvasElement?.nativeElement) {
+      console.error('Frame canvas not available');
+      return;
+    }
+
+    // Convert canvas to data URL
+    
+    const imageData = this.frameCanvasElement.nativeElement.toDataURL(
+      'image/jpeg',
+      0.8
+    );
+
+    // Create the selfie result object
+    const idResult: IDResult = {
+      data: imageData,
+      fileName: 'selfie.jpg',
+      livenessVerified: true,
+      success: true,
+      confirmed: true,
+    };
+
+    // Store in the selfie service
+    this.selfieService.setSelfieResult(idResult);
+
+    console.log('Selfie result stored successfully:', idResult);
+
+    // Optional: You can also close the modal automatically
+    this.modalService.nationalIdDialogRef()?.close(idResult);
   }
 }

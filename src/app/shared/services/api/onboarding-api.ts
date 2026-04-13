@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
@@ -91,6 +91,11 @@ export interface DocumentInfo {
   uploadedAt: string;
 }
 
+export interface IdVerificationRequest {
+  nationalIdImage: string;  // base64
+  selfieImage: string;      // base64
+}
+
 export interface OnboardingStatus {
   currentStep: number;
   status: string;
@@ -103,6 +108,7 @@ export interface OnboardingStatus {
 export class OnboardingApiService {
 
   private readonly baseUrl = `${environment.apiUrl}/api/v1/onboarding`;
+  studentId = signal(localStorage.getItem('token'));
 
   constructor(private http: HttpClient) {}
 
@@ -142,8 +148,9 @@ export class OnboardingApiService {
     return this.http.get(`${this.baseUrl}/id-verification`);
   }
 
-  uploadIdVerification(formData: FormData): Observable<any> {
-    return this.http.post(`${this.baseUrl}/id-verification`, formData);
+  saveIdVerification(data: IdVerificationRequest, token: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/id-verification`, data, {
+      params: { token }});
   }
 
   // ── Step 3: Academic Details ──
@@ -208,5 +215,11 @@ export class OnboardingApiService {
 
   submit(): Observable<any> {
     return this.http.post(`${this.baseUrl}/submit`, {});
+  }
+
+  getCurrentStep(token: string): Observable<any>{
+    return this.http.get(`${this.baseUrl}/current-step`, {
+      params: { token }
+    });
   }
 }

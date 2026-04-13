@@ -381,6 +381,37 @@ export class SelfieModal {
     }
   }
 
+  saveImage(){
+    if (!this.frameCanvasElement?.nativeElement) {
+      console.error('Frame canvas not available');
+      return;
+    }
+
+    // Convert canvas to data URL
+    
+    const imageData = this.frameCanvasElement.nativeElement.toDataURL(
+      'image/jpeg',
+      0.8
+    );
+
+    // Create the selfie result object
+    const selfieResult: SelfieResult = {
+      data: imageData,
+      fileName: 'selfie.jpg',
+      livenessVerified: true,
+      success: true,
+      confirmed: true,
+    };
+
+    // Store in the selfie service
+    this.selfieService.setSelfieResult(selfieResult);
+
+    console.log('Selfie result stored successfully:', selfieResult);
+
+    // Optional: You can also close the modal automatically
+    this.modalService.selfieUploadDialogRef()?.close(selfieResult);
+  }
+
   private sendToSelfieResultService() {
     if (!this.frameCanvasElement?.nativeElement) {
       console.error('Frame canvas not available');
@@ -388,6 +419,7 @@ export class SelfieModal {
     }
 
     // Convert canvas to data URL
+    
     const imageData = this.frameCanvasElement.nativeElement.toDataURL(
       'image/jpeg',
       0.8

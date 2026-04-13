@@ -20,6 +20,7 @@ export class ModalService {
   
   takeSelfie(data: ModalData) {
     const dialogConfig = this.getDialogConfig(data);
+    dialogConfig.width = '540px';
     const dialogRef = this.dialog.open(SelfieModal, dialogConfig);
     this.selfieUploadDialogRef.set(dialogRef);
     return dialogRef;

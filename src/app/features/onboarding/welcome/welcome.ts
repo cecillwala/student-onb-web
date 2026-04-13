@@ -22,7 +22,7 @@ export class Welcome implements OnInit {
   isStarting = signal(false);
   errorMessage = signal('');
 
-  private token: string | null = null;
+  private token = signal<string | null>('');
 
   constructor(
     private router: Router,
@@ -32,7 +32,7 @@ export class Welcome implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.token = this.route.snapshot.queryParamMap.get('token');
+    this.token.set(this.route.snapshot.queryParamMap.get('token'));
 
     if (!this.token) {
       this.errorMessage.set('No onboarding link provided. Please use the link sent to your email.');
@@ -40,7 +40,7 @@ export class Welcome implements OnInit {
       return;
     }
 
-    this.onboardingApi.verifyToken(this.token).subscribe({
+    this.onboardingApi.verifyToken(this.token() ?? '').subscribe({
       next: (res: VerifyTokenResponse) => {
         const info: StudentInfo = {
           name: res.fullName,
@@ -52,6 +52,8 @@ export class Welcome implements OnInit {
         };
 
         this.student.set(info);
+        localStorage.setItem('token', this.token() ?? '');
+
         this.studentDetails.set([
           { label: 'Programme', value: info.programme },
           { label: 'Index Number', value: info.indexNo },
@@ -91,7 +93,7 @@ export class Welcome implements OnInit {
     // For now, we pass a placeholder national ID — 
     // the identity confirmation step will be added later.
     // The backend still requires it, so we use the masked ID hint.
-    this.onboardingApi.verifyIdentity(this.token, '').subscribe({
+    this.onboardingApi.verifyIdentity(this.token() ?? '', '').subscribe({
       next: (session) => {
         this.sessionService.setSession({
           sessionToken: session.sessionToken,

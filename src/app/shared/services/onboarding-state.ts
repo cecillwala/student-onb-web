@@ -97,6 +97,10 @@ export class OnboardingStateService {
     return this.completedSteps.has(stepId);
   }
 
+  setCurrentStep(step: number): void {
+    this.currentStepSubject.next(step);
+  }
+
   goToStep(stepId: number): void {
     if (this.isStepAccessible(stepId)) {
       this.currentStepSubject.next(stepId);

@@ -1,6 +1,6 @@
 <app-navbar 
   [showProfile]="true"
-  [initials]="`${session.session()?.lastName?.charAt(0)}${session.session()?.firstName?.charAt(0)}`"
+  [initials]="`${session.session()?.firstName?.charAt(0)}${session.session()?.lastName?.charAt(0)}`"
   [first_name]="`${session.session()?.firstName}`">
 </app-navbar>
 
