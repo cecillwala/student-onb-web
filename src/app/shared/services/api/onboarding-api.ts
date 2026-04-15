@@ -244,11 +244,16 @@ export class OnboardingApiService {
     return this.http.get<DocumentInfo[]>(`${this.baseUrl}/documents`);
   }
 
-  uploadDocument(documentType: string, file: File): Observable<any> {
+  uploadDocuments(uploadedFiles: Record<string, File>, token: string): Observable<any> {
     const formData = new FormData();
-    formData.append('file', file);
-    formData.append('documentType', documentType);
-    return this.http.post(`${this.baseUrl}/documents`, formData);
+
+    Object.entries(uploadedFiles).forEach(([key, file]) => {
+      formData.append(key, file);
+    });
+
+    return this.http.post(`${this.baseUrl}/documents/upload-all`, formData, {
+      params: { token }
+    });
   }
 
   deleteDocument(documentId: string): Observable<any> {

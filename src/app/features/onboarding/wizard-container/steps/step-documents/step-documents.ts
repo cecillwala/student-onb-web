@@ -1,6 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { SharedImports } from '../../../../../shared/modules/shared.imports';
+import { OnboardingApiService } from '../../../../../shared/services/api/onboarding-api';
+import { OnboardingStateService } from '../../../../../shared/services/onboarding-state';
+import { catchError, map, Observable, of } from 'rxjs';
 
 @Component({
   selector: 'app-step-documents',
@@ -9,7 +12,33 @@ import { SharedImports } from '../../../../../shared/modules/shared.imports';
   templateUrl: './step-documents.html',
   styleUrls: ['../shared-step.scss'],
 })
-export class StepDocuments {
+export class StepDocuments implements OnInit, OnDestroy{
+
+  api = inject(OnboardingApiService);
+  state = inject(OnboardingStateService);
+
+
+  ngOnInit(): void {
+    this.state.registerSaveFn(() => this.save());
+  }
+
+  private save(): Observable<boolean> {
+    const missingRequired = this.documents
+    .filter(d => d.required && !this.uploadedFiles[d.name]);
+
+    if (missingRequired.length > 0) {
+      return of(false);
+    }
+    
+    return this.api.uploadDocuments(this.uploadedFiles, localStorage.getItem('token') ?? '').pipe(
+      map(() => true),
+      catchError(() => of(false)),
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.state.clearSaveFn();
+  }
 
   documents = [
     { name: 'KCSE Certificate',     required: true,  description: 'Upload your KCSE certificate' },
