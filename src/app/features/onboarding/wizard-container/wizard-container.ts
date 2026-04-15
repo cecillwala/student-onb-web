@@ -34,6 +34,7 @@ export class WizardContainer implements OnInit, OnDestroy {
     
     this.api.getCurrentStep(localStorage.getItem('token') ?? '').subscribe((res) => {
       this.state.setCurrentStep(res + 1);
+      this.state.markCompletedSteps(res);
       this.cd.detectChanges();
       this.subs.push(
         this.state.currentStep$.subscribe(step => {

@@ -51,11 +51,43 @@ export interface AcademicDetailsRequest {
 }
 
 export interface AccommodationRequest {
-  residencyStatus: string;
-  preferredHostelId: string | null;
-  preferredRoomType: string | null;
-  offCampusLocation: string | null;
-  specialNeeds: string | null;
+  residenceType: string;
+  hostelPreference: string;
+  roomType: string;
+  room: string;
+  specialNeeds: string;
+  offCampusReason: string;
+  guardianAware: string;
+  buildingName: string;
+  floor: string;
+  offCampusLocation: string;
+  offCampusRoomType: string;
+  landlordFirstName: string;
+  landlordLastName: string;
+  landlordPhone: string;
+  roommateFirstName: string;
+  roommateLastName: string;
+  roommatePhone: string;
+}
+
+export interface HostelDetailsRequest{
+    hostel: string;
+    hostel_id: string;
+    gender_allocation: 'MALE' | 'FEMALE';
+    total_capacity: number;
+    floors: number[];
+    roomTypes: string[];
+    rooms: RoomModel[];
+}
+
+export interface RoomModel{
+  id: string;
+  hostel_id: string;
+  room_number: string;
+  floor: number;
+  room_type: string;
+  capacity: number;
+  available_beds: number;
 }
 
 export interface HealthDetailsRequest {
@@ -171,8 +203,14 @@ export class OnboardingApiService {
     return this.http.get<AccommodationRequest>(`${this.baseUrl}/accommodation`);
   }
 
-  saveAccommodation(data: AccommodationRequest): Observable<any> {
-    return this.http.post(`${this.baseUrl}/accommodation`, data);
+  getHostelDetails(): Observable<HostelDetailsRequest[]>{
+    return this.http.get<HostelDetailsRequest[]>(`${this.baseUrl}/hostels`);
+  }
+
+  saveAccommodation(data: AccommodationRequest, token: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/accommodation`, data, {
+      params: { token }
+    });
   }
 
   updateAccommodation(data: AccommodationRequest): Observable<any> {

@@ -88,7 +88,7 @@ export class DropdownSelect implements OnInit, OnChanges, ControlValueAccessor
       this.searchCtrl.valueChanges.pipe(startWith('')),
       of(this.data),
     ]).pipe(
-      map(([searchValue, data]) => this._filter(searchValue || '', data))
+      map(([searchValue, data]) => this._filter(searchValue || '', data ?? []))
     );
   }
 
@@ -114,7 +114,7 @@ export class DropdownSelect implements OnInit, OnChanges, ControlValueAccessor
   //     item[this.displayField].toLowerCase().includes(filterValue)
   //   );
   // }
-  private _filter(value: string, data: any[] = this.data): any[] {
+  private _filter(value: string, data: any[] = this.data ?? []): any[] {
     const filterValue = (value || '').toLowerCase();
 
     return data.filter((item) => {

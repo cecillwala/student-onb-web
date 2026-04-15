@@ -12,7 +12,7 @@
           formControlName="residenceType"
           [data]="residenceTypes"
           displayField="name"
-          valueField="id"
+          valueField="name"
           placeholder="Select residence type"
           searchPlaceholder="Search..."
         ></app-dropdown-select>
@@ -25,11 +25,10 @@
           <label class="form-label">Hostel Preference</label>
           <app-dropdown-select
             formControlName="hostelPreference"
-            [data]="hostelOptions"
-            displayField="name"
-            valueField="id"
+            [data]="hostelOptions()"
+            (selectionChange)="onHostelChange($event)"
+            displayField="name" valueField="id"
             placeholder="Select hostel"
-            searchPlaceholder="Search hostel..."
           ></app-dropdown-select>
         </div>
 
@@ -37,14 +36,34 @@
           <label class="form-label">Room Type</label>
           <app-dropdown-select
             formControlName="roomType"
-            [data]="roomTypes"
-            displayField="name"
-            valueField="id"
+            [data]="roomTypeOptions()"
+            (selectionChange)="onRoomTypeChange($event)"
+            displayField="name" valueField="id"
             placeholder="Select room type"
-            searchPlaceholder="Search room type..."
           ></app-dropdown-select>
         </div>
 
+        <div class="form-group">
+          <label class="form-label">Floor</label>
+          <app-dropdown-select
+            formControlName="floor"
+            [data]="floorOptions()"
+            (selectionChange)="onFloorChange($event)"
+            displayField="name" valueField="id"
+            placeholder="Select floor"
+          ></app-dropdown-select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Room No.</label>
+          <app-dropdown-select
+            formControlName="room"
+            [data]="roomOptions()"
+            (selectionChange)="onRoomChange($event)"
+            displayField="name" valueField="id"
+            placeholder="Select room"
+          ></app-dropdown-select>
+        </div>
       }
 
       <!-- ── Non-resident fields ── -->
@@ -57,7 +76,7 @@
             formControlName="offCampusReason"
             [data]="offCampusReasons"
             displayField="name"
-            valueField="id"
+            valueField="name"
             placeholder="Select reason"
             searchPlaceholder="Search reason..."
           ></app-dropdown-select>
@@ -135,7 +154,7 @@
             formControlName="offCampusLocation"
             [data]="offCampusLocations"
             displayField="name"
-            valueField="id"
+            valueField="name"
             placeholder="Select location"
             searchPlaceholder="Search location..."
           ></app-dropdown-select>
@@ -148,10 +167,10 @@
             formControlName="offCampusRoomType"
             [data]="offCampusRoomTypes"
             displayField="name"
-            valueField="id"
+            valueField="name"
             placeholder="Select room type"
             searchPlaceholder="Search..."
-            (selectionChange)="onRoomTypeChange($event)"
+            (selectionChange)="onOffCampusRoomTypeChange($event)"
           ></app-dropdown-select>
         </div>
 
@@ -195,7 +214,7 @@
           [mainLabel]="''"
           [enablePlaceholder]="true"
           [enableSearch]="true"
-          (phoneChange)="onPhoneChange($event, 'landlordPhone')"
+          fieldControlName="landlordPhone"
         ></ngx-material-intl-tel-input>
         </div>
 
@@ -203,7 +222,7 @@
     </section>
 
     <!-- ======== Roommate Details ======== -->
-    @if (isSharedRoom) {
+    @if (isSharedRoom()) {
       <section class="form-section">
         <h3 class="section-title">Roommate Details</h3>
         <div class="form-grid cols-2">
@@ -240,7 +259,7 @@
               [mainLabel]="''"
               [enablePlaceholder]="true"
               [enableSearch]="true"
-              (phoneChange)="onPhoneChange($event, 'roomatePhone')"
+              fieldControlName="roommatePhone"
             ></ngx-material-intl-tel-input>
           </div>
 

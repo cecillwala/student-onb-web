@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { SharedImports } from '../../../../../shared/modules/shared.imports';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { OnboardingStateService } from '../../../../../shared/services/onboarding-state';
-import { Subscription } from 'rxjs';
+import { catchError, map, Observable, of, Subscription } from 'rxjs';
 import { DropdownSelect } from '../../../../../shared/components/dropdown-select/dropdown-select';
+import { AccommodationRequest, HostelDetailsRequest, OnboardingApiService, RoomModel } from '../../../../../shared/services/api/onboarding-api';
 
 @Component({
   selector: 'app-step-accommodation',
@@ -17,12 +18,36 @@ export class StepAccommodation implements OnInit, OnDestroy {
 
   private fb = inject(FormBuilder);
   state = inject(OnboardingStateService);
+  api = inject(OnboardingApiService);
+
+  // Raw data from API
+  allHostels = signal<HostelDetailsRequest[]>([]);
+
+  // Dropdown options (transformed to {id, name} for app-dropdown-select)
+  hostelOptions = signal<{ id: string; name: string }[]>([]);
+  floorOptions = signal<{ id: number; name: string }[]>([]);
+  roomTypeOptions = signal<{name: string }[]>([]);
+  roomOptions = signal<{ id: string; name: string }[]>([]);
+
+  // Currently selected hostel's rooms (for filtering)
+  private selectedHostel = signal<HostelDetailsRequest>({
+    hostel: "",
+    hostel_id: "",
+    gender_allocation: "MALE",
+    total_capacity: 0,
+    floors: [],
+    roomTypes: [],
+    rooms: []
+});
+  private selectedHostelRooms = signal<RoomModel[]>([]);
+
+  private selectedFloor: number | null = null;
+  private selectedRoomType = signal("");
 
   form!: FormGroup;
-  isResident = true; // default to resident
+  isResident = true;
+  isSharedRoom = signal(false);
   private subs: Subscription[] = [];
-
-  isSharedRoom = false;
 
   offCampusLocations = [
     { id: 1, name: 'Njokerio' },
@@ -35,8 +60,6 @@ export class StepAccommodation implements OnInit, OnDestroy {
     { id: 1, name: 'Single' },
     { id: 2, name: 'Shared' },
   ];
-
-  // ── Dropdown data ────────────────────────────────
 
   residenceTypes = [
     { id: 1, name: 'Resident' },
@@ -66,84 +89,153 @@ export class StepAccommodation implements OnInit, OnDestroy {
     { id: 7, name: 'Other' },
   ];
 
-  hostelOptions = [
-    { id: 1, name: 'Hostel A — Male' },
-    { id: 2, name: 'Hostel B — Male' },
-    { id: 3, name: 'Hostel C — Female' },
-    { id: 4, name: 'Hostel D — Female' },
-    { id: 5, name: 'No Preference' },
-  ];
-
-  roomTypes = [
-    { id: 1, name: 'Single' },
-    { id: 2, name: 'Double' },
-    { id: 3, name: 'Triple' },
-    { id: 4, name: 'No Preference' },
-  ];
-
-  // ── Lifecycle ────────────────────────────────────
+  // ── Lifecycle ──
 
   ngOnInit(): void {
     this.buildForm();
     this.watchResidenceType();
+    this.loadHostelData();
+    this.state.registerSaveFn(() => this.save());
   }
 
   ngOnDestroy(): void {
     this.subs.forEach(s => s.unsubscribe());
+    this.state.clearSaveFn();
   }
 
-  // ── Form ─────────────────────────────────────────
+  // ── Form ──
 
   private buildForm(): void {
     this.form = this.fb.group({
-      residenceType:      [1, Validators.required],
+      residenceType:      ['Resident', Validators.required],
 
       // Resident
       hostelPreference:   [null],
+      floor:              [null],
       roomType:           [null],
-      specialNeeds:       [''],
+      room:               [null],
+      specialNeeds:       [null],
 
       // Non-resident
-      offCampusReason:    [''],
+      offCampusReason:    [null],
       guardianAware:      [null],
-
-      // Off campus location
-      buildingName:         [''],
-      offCampusLocation:    [null],
-      offCampusRoomType:    [null],
+      buildingName:       [null],
+      offCampusLocation:  [null],
+      offCampusRoomType:  [null],
 
       // Landlord
-      landlordFirstName:  [''],
-      landlordLastName:   [''],
-      landlordPhone:      [''],
+      landlordFirstName:  [null],
+      landlordLastName:   [null],
+      landlordPhone:      [null],
 
       // Roommate
-      roommateFirstName:  [''],
-      roommateLastName:   [''],
-      roommatePhone:      [''],
+      roommateFirstName:  [null],
+      roommateLastName:   [null],
+      roommatePhone:      [null],
     });
   }
 
-  // ── Watch residence type ──────────────────────────
+  // ── Load hostel data (one API call) ──
 
+  private loadHostelData(): void {
+    this.api.getHostelDetails().subscribe({
+      next: (res) => {
+        this.allHostels.set(res);
+
+        // Transform to dropdown format
+        this.hostelOptions.set(
+          res.map(h => ({ id: h.hostel_id, name: h.hostel }))
+        );
+
+        console.log(this.hostelOptions());
+      },
+      error: () => {},
+    });
+  }
+
+  // ── Cascading dropdown handlers ──
+
+  onHostelChange(selected: any): void {
+    // Reset downstream
+    this.form.patchValue({ roomType: null, floor: null, room: null });
+    this.roomTypeOptions.set([]);
+    this.roomOptions.set([]);
+
+    const hostel = this.allHostels().find(h => h.hostel_id === selected.id);
+    if (!hostel) return;
+
+    this.selectedHostel.set(hostel);
+
+    this.floorOptions.set(hostel.floors.map(f  => ({id:f, name:`${f}${f == 1 ? 'st' : f == 2 ? 'nd' : f == 3 ? 'rd' : 'th'} Floor`})));
+
+    this.selectedHostelRooms.set(hostel.rooms);
+
+    // Populate room types from this hostel
+    this.roomTypeOptions.set(
+      hostel.roomTypes.map(t => ({ id: t, name: t }))
+    );
+}
+
+onRoomTypeChange(selected: any): void {
+    // Reset downstream
+    this.form.patchValue({ floor: null, room: null });
+    this.roomOptions.set([]);
+
+    this.selectedRoomType.set(selected.id ?? selected.name);
+}
+
+onOffCampusRoomTypeChange(value: any): void{
+  if(value.name == 'Shared'){
+    this.isSharedRoom.set(true);
+  }
+  else{
+    this.isSharedRoom.set(false);
+  }
+}
+
+onFloorChange(selected: any): void {
+    // Reset room
+    this.form.patchValue({ room: null });
+    this.roomOptions.set([]);
+
+    this.selectedFloor = selected.id;
+
+    // Filter rooms by room type + floor
+    const filtered = this.selectedHostelRooms().filter(
+      r => r.room_type === this.selectedRoomType() && r.floor === this.selectedFloor
+    );
+    console.log(filtered);
+
+    this.roomOptions.set(
+      filtered.map(r => ({
+        id: r.id,
+        name: `${r.room_number} (${r.available_beds} bed${r.available_beds !== 1 ? 's' : ''} available)`,
+      }))
+    );
+
+    console.log(this.roomOptions());
+}
+
+onRoomChange(selected: any): void {
+    // Room selected — nothing more to cascade
+}
+  // ── Watch residence type ──
   private watchResidenceType(): void {
     this.subs.push(
       this.form.get('residenceType')!.valueChanges.subscribe(value => {
         this.isResident = value === 1;
 
         if (this.isResident) {
-          // Clear non-resident fields
           this.form.patchValue({
-            townOfResidence:    '',
-            distanceFromCampus: null,
-            transportMode:      null,
+            offCampusReason: '', guardianAware: null,
+            buildingName: '', offCampusLocation: null, offCampusRoomType: null,
+            landlordFirstName: '', landlordLastName: '', landlordPhone: '',
+            roommateFirstName: '', roommateLastName: '', roommatePhone: '',
           });
         } else {
-          // Clear resident fields
           this.form.patchValue({
-            hostelPreference: null,
-            roomType:         null,
-            specialNeeds:     '',
+            hostelPreference: null, floor: null, roomType: null,
+            room: null, specialNeeds: '',
           });
         }
       })
@@ -155,15 +247,18 @@ export class StepAccommodation implements OnInit, OnDestroy {
     this.form.get(field)?.markAsTouched();
   }
 
-  onRoomTypeChange(value: any): void {
-  this.isSharedRoom = value?.id === 2;
+  // ── Save ──
 
-  if (!this.isSharedRoom) {
-    this.form.patchValue({
-      roommateFirstName: '',
-      roommateLastName:  '',
-      roommatePhone:     '',
-    });
+  private save(): Observable<boolean> {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return of(false);
+    }
+
+    const data: AccommodationRequest = this.form.getRawValue();
+    return this.api.saveAccommodation(data, localStorage.getItem('token') ?? '').pipe(
+        map(() => true),
+        catchError(() => of(false)),
+      );
   }
-}
 }

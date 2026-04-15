@@ -74,6 +74,10 @@ export class OnboardingStateService {
     return this.completedStepsSubject.value;
   }
 
+  set completedSteps(step: number){
+    
+  }
+
   get isFirstStep(): boolean {
     return this.currentStep === 1;
   }
@@ -162,5 +166,15 @@ export class OnboardingStateService {
 
   resetSaveStatus(): void {
     setTimeout(() => this.saveStatusSubject.next('idle'), 2000);
+  }
+
+
+  markCompletedSteps(currentStep: number){
+    let completedSteps = new Set<number>();
+
+    for(let i = 0; i < currentStep; i++){
+      completedSteps.add(i + 1);
+    }
+    this.completedStepsSubject.next(completedSteps);   
   }
 }
