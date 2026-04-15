@@ -1,9 +1,11 @@
-import { Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { SharedImports } from '../../../../../shared/modules/shared.imports';
 import { DropdownSelect } from '../../../../../shared/components/dropdown-select/dropdown-select';
+import { DropdownSelectMultiple } from '../../../../../shared/components/dropdown-select-multiple/dropdown-select-multiple';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { OnboardingStateService } from '../../../../../shared/services/onboarding-state';
-import { DropdownSelectMultiple } from '../../../../../shared/components/dropdown-select-multiple/dropdown-select-multiple';
+import { OnboardingApiService, HealthDetailsRequest } from '../../../../../shared/services/api/onboarding-api';
+import { Observable, of, map, catchError, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-step-health',
@@ -12,132 +14,166 @@ import { DropdownSelectMultiple } from '../../../../../shared/components/dropdow
   templateUrl: './step-health.html',
   styleUrls: ['../shared-step.scss'],
 })
-export class StepHealth implements OnInit {
+export class StepHealth implements OnInit, OnDestroy {
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
   private fb = inject(FormBuilder);
   state = inject(OnboardingStateService);
+  api = inject(OnboardingApiService);
 
   form!: FormGroup;
   preferredCountries = ['ke'];
   uploadedFile: File | null = null;
+  uploadedFileName = '';
+  isLoading = true;
 
-  // ── Dropdown data ────────────────────────────────
+  // ── Dropdown data ──
 
   bloodGroups = [
-    { id: 1, name: 'A+' },
-    { id: 2, name: 'A-' },
-    { id: 3, name: 'B+' },
-    { id: 4, name: 'B-' },
-    { id: 5, name: 'AB+' },
-    { id: 6, name: 'AB-' },
-    { id: 7, name: 'O+' },
-    { id: 8, name: 'O-' },
+    { id: 'A+', name: 'A+' },   { id: 'A-', name: 'A-' },
+    { id: 'B+', name: 'B+' },   { id: 'B-', name: 'B-' },
+    { id: 'AB+', name: 'AB+' }, { id: 'AB-', name: 'AB-' },
+    { id: 'O+', name: 'O+' },   { id: 'O-', name: 'O-' },
   ];
 
   medicalConditionsList = [
-    { id: 1,  name: 'Asthma' },
-    { id: 2,  name: 'Diabetes Type 1' },
-    { id: 3,  name: 'Diabetes Type 2' },
-    { id: 4,  name: 'Hypertension' },
-    { id: 5,  name: 'Epilepsy' },
-    { id: 6,  name: 'Sickle Cell Disease' },
-    { id: 7,  name: 'HIV/AIDS' },
-    { id: 8,  name: 'Tuberculosis' },
-    { id: 9,  name: 'Heart Disease' },
-    { id: 10, name: 'Kidney Disease' },
-    { id: 11, name: 'Arthritis' },
-    { id: 12, name: 'Depression' },
-    { id: 13, name: 'Anxiety Disorder' },
-    { id: 14, name: 'Bipolar Disorder' },
-    { id: 15, name: 'Schizophrenia' },
-    { id: 16, name: 'Cancer' },
-    { id: 17, name: 'Cerebral Palsy' },
-    { id: 18, name: 'Physical Disability' },
-    { id: 19, name: 'Visual Impairment' },
-    { id: 20, name: 'Hearing Impairment' },
-    { id: 21, name: 'None' },
+    { id: 'Asthma', name: 'Asthma' },
+    { id: 'Diabetes Type 1', name: 'Diabetes Type 1' },
+    { id: 'Diabetes Type 2', name: 'Diabetes Type 2' },
+    { id: 'Hypertension', name: 'Hypertension' },
+    { id: 'Epilepsy', name: 'Epilepsy' },
+    { id: 'Sickle Cell Disease', name: 'Sickle Cell Disease' },
+    { id: 'HIV/AIDS', name: 'HIV/AIDS' },
+    { id: 'Tuberculosis', name: 'Tuberculosis' },
+    { id: 'Heart Disease', name: 'Heart Disease' },
+    { id: 'Kidney Disease', name: 'Kidney Disease' },
+    { id: 'Arthritis', name: 'Arthritis' },
+    { id: 'Depression', name: 'Depression' },
+    { id: 'Anxiety Disorder', name: 'Anxiety Disorder' },
+    { id: 'Bipolar Disorder', name: 'Bipolar Disorder' },
+    { id: 'Cancer', name: 'Cancer' },
+    { id: 'Cerebral Palsy', name: 'Cerebral Palsy' },
+    { id: 'Physical Disability', name: 'Physical Disability' },
+    { id: 'Visual Impairment', name: 'Visual Impairment' },
+    { id: 'Hearing Impairment', name: 'Hearing Impairment' },
+    { id: 'None', name: 'None' },
   ];
 
   allergiesList = [
-    // Food
-    { id: 1,  name: 'Peanuts' },
-    { id: 2,  name: 'Tree Nuts' },
-    { id: 3,  name: 'Milk / Dairy' },
-    { id: 4,  name: 'Eggs' },
-    { id: 5,  name: 'Wheat / Gluten' },
-    { id: 6,  name: 'Soy' },
-    { id: 7,  name: 'Fish' },
-    { id: 8,  name: 'Shellfish' },
-    { id: 9,  name: 'Sesame' },
-    // Environmental
-    { id: 10, name: 'Pollen' },
-    { id: 11, name: 'Dust Mites' },
-    { id: 12, name: 'Mold' },
-    { id: 13, name: 'Pet Dander' },
-    { id: 14, name: 'Insect Stings' },
-    { id: 15, name: 'Latex' },
-    // Medication
-    { id: 16, name: 'Penicillin' },
-    { id: 17, name: 'Aspirin' },
-    { id: 18, name: 'Ibuprofen' },
-    { id: 19, name: 'Sulfonamides' },
-    { id: 20, name: 'Codeine' },
-    { id: 21, name: 'None' },
+    { id: 'Peanuts', name: 'Peanuts' },
+    { id: 'Tree Nuts', name: 'Tree Nuts' },
+    { id: 'Milk / Dairy', name: 'Milk / Dairy' },
+    { id: 'Eggs', name: 'Eggs' },
+    { id: 'Wheat / Gluten', name: 'Wheat / Gluten' },
+    { id: 'Soy', name: 'Soy' },
+    { id: 'Fish', name: 'Fish' },
+    { id: 'Shellfish', name: 'Shellfish' },
+    { id: 'Pollen', name: 'Pollen' },
+    { id: 'Dust Mites', name: 'Dust Mites' },
+    { id: 'Mold', name: 'Mold' },
+    { id: 'Latex', name: 'Latex' },
+    { id: 'Penicillin', name: 'Penicillin' },
+    { id: 'Aspirin', name: 'Aspirin' },
+    { id: 'Ibuprofen', name: 'Ibuprofen' },
+    { id: 'None', name: 'None' },
   ];
 
   relationships = [
-    { id: 1,  name: 'Father' },
-    { id: 2,  name: 'Mother' },
-    { id: 3,  name: 'Stepfather' },
-    { id: 4,  name: 'Stepmother' },
-    { id: 5,  name: 'Brother' },
-    { id: 6,  name: 'Sister' },
-    { id: 7,  name: 'Grandfather' },
-    { id: 8,  name: 'Grandmother' },
-    { id: 9,  name: 'Uncle' },
-    { id: 10, name: 'Aunt' },
-    { id: 11, name: 'Legal Guardian' },
-    { id: 12, name: 'Sponsor' },
-    { id: 13, name: 'Other' },
+    { id: 'Father', name: 'Father' },
+    { id: 'Mother', name: 'Mother' },
+    { id: 'Stepfather', name: 'Stepfather' },
+    { id: 'Stepmother', name: 'Stepmother' },
+    { id: 'Brother', name: 'Brother' },
+    { id: 'Sister', name: 'Sister' },
+    { id: 'Grandfather', name: 'Grandfather' },
+    { id: 'Grandmother', name: 'Grandmother' },
+    { id: 'Uncle', name: 'Uncle' },
+    { id: 'Aunt', name: 'Aunt' },
+    { id: 'Legal Guardian', name: 'Legal Guardian' },
+    { id: 'Sponsor', name: 'Sponsor' },
+    { id: 'Other', name: 'Other' },
   ];
 
-  // ── Lifecycle ────────────────────────────────────
+  // ── Lifecycle ──
 
   ngOnInit(): void {
     this.buildForm();
+    this.loadSavedData();
+    this.state.registerSaveFn(() => this.save());
   }
 
-  // ── Form ─────────────────────────────────────────
+  ngOnDestroy(): void {
+    this.state.clearSaveFn();
+  }
+
+  // ── Form ──
 
   private buildForm(): void {
     this.form = this.fb.group({
-      // Health Information
-      bloodGroup:          [null, Validators.required],
-      preferredHospital:   [''],
-      medicalConditions:   [''],
-      allergies:           [''],
-
-      // Insurance
-      insuranceProvider:   [''],
-      policyNumber:        [''],
-
-      // Emergency Contact
-      emergencyFirstName:  ['', Validators.required],
-      emergencyLastName:   ['', Validators.required],
+      bloodGroup:            [null, Validators.required],
+      preferredHospital:     [''],
+      medicalConditions:     [[]],
+      allergies:             [[]],
+      insuranceProvider:     [''],
+      policyNumber:          [''],
+      emergencyFirstName:    ['', Validators.required],
+      emergencyLastName:     ['', Validators.required],
       emergencyRelationship: [null, Validators.required],
-      emergencyPhone:      ['', Validators.required],
+      emergencyPhone:        ['', Validators.required],
+      emergencyEmail:        [''],
     });
   }
 
+  // ── Load saved data ──
+
+  private loadSavedData(): void {
+    this.api.getHealthDetails(localStorage.getItem("token") ?? '').subscribe({
+      next: (data) => {
+        if (data && data.bloodGroup) {
+          this.form.patchValue(data);
+        }
+        this.isLoading = false;
+      },
+      error: () => {
+        this.isLoading = false;
+      },
+    });
+  }
+
+  // ── Save ──
+
+  private save(): Observable<boolean> {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return of(false);
+    }
+
+    const data: HealthDetailsRequest = this.form.getRawValue();
+
+    // Save form data first, then upload file if present
+    return this.api.saveHealthDetails(data, localStorage.getItem("token") ?? '').pipe(
+      switchMap(() => {
+        if (this.uploadedFile) {
+          return this.api.uploadMedicalReport(this.uploadedFile, localStorage.getItem("token") ?? '').pipe(
+            map(() => true),
+            catchError(() => of(true)), // form saved, file failed — still continue
+          );
+        }
+        return of(true);
+      }),
+      catchError(() => of(false)),
+    );
+  }
+
+  // ── Phone ──
 
   onPhoneChange(value: any): void {
     this.form.get('emergencyPhone')?.setValue(value);
     this.form.get('emergencyPhone')?.markAsTouched();
   }
 
-  // ── File upload ───────────────────────────────────
+  // ── File upload ──
 
   triggerFileInput(): void {
     this.fileInput.nativeElement.click();
@@ -147,6 +183,7 @@ export class StepHealth implements OnInit {
     const input = event.target as HTMLInputElement;
     if (input.files?.length) {
       this.uploadedFile = input.files[0];
+      this.uploadedFileName = this.uploadedFile.name;
     }
   }
 
@@ -161,6 +198,7 @@ export class StepHealth implements OnInit {
     const file = event.dataTransfer?.files[0];
     if (file) {
       this.uploadedFile = file;
+      this.uploadedFileName = file.name;
     }
   }
 }

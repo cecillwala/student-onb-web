@@ -50,6 +50,20 @@ export interface AcademicDetailsRequest {
   extracurricularActivities: string;
 }
 
+export interface HealthDetailsRequest {
+  bloodGroup: string;
+  preferredHospital: string;
+  medicalConditions: string[];
+  allergies: string[];
+  insuranceProvider: string;
+  policyNumber: string;
+  emergencyFirstName: string;
+  emergencyLastName: string;
+  emergencyRelationship: string;
+  emergencyPhone: string;
+  emergencyEmail: string;
+}
+
 export interface AccommodationRequest {
   residenceType: string;
   hostelPreference: string;
@@ -88,19 +102,6 @@ export interface RoomModel{
   room_type: string;
   capacity: number;
   available_beds: number;
-}
-
-export interface HealthDetailsRequest {
-  bloodGroup: string;
-  medicalConditions: string;
-  allergies: string;
-  insuranceProvider: string;
-  insurancePolicyNumber: string;
-  preferredHospital: string;
-  emergencyFirstName: string;
-  emergencyLastName: string;
-  emergencyPhone: string;
-  emergencyEmail: string;
 }
 
 export interface OnboardingSummary {
@@ -218,16 +219,24 @@ export class OnboardingApiService {
   }
 
   // ── Step 5: Health Details ──
-  getHealthDetails(): Observable<HealthDetailsRequest> {
-    return this.http.get<HealthDetailsRequest>(`${this.baseUrl}/health`);
+  getHealthDetails(token: string): Observable<HealthDetailsRequest> {
+    return this.http.get<HealthDetailsRequest>(`${this.baseUrl}/health`, {
+      params: { token }
+    });
   }
 
-  saveHealthDetails(data: HealthDetailsRequest): Observable<any> {
-    return this.http.post(`${this.baseUrl}/health`, data);
+  saveHealthDetails(data: HealthDetailsRequest, token: string): Observable<any> {
+      return this.http.post(`${this.baseUrl}/health`, data, {
+        params: { token }
+      });
   }
 
-  updateHealthDetails(data: HealthDetailsRequest): Observable<any> {
-    return this.http.put(`${this.baseUrl}/health`, data);
+  uploadMedicalReport(file: File, token: string): Observable<any> {
+      const formData = new FormData();
+      formData.append('file', file);
+      return this.http.post(`${this.baseUrl}/health/medical-report`, formData, {
+        params: { token }
+      });
   }
 
   // ── Step 6: Documents ──
