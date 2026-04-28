@@ -88,7 +88,7 @@ export class StepPersonal implements OnInit, OnDestroy {
     });
 
     // Load saved data from backend
-    this.api.getPersonalDetails().subscribe({
+    this.api.getPersonalDetails(localStorage.getItem("token") ?? '').subscribe({
       next: (data) => {
         console.log(`DATA: ${data}`);
         if (data && data.gender) {

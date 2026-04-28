@@ -171,9 +171,15 @@
     <div class="form-group">
       <label class="form-label">Upload Report</label>
       <div class="drop-area" (click)="triggerFileInput()" (dragover)="onDragOver($event)" (drop)="onDrop($event)">
-        <span class="material-icons drop-icon">attach_file</span>
-        <span class="drop-text">Click to upload or drag and drop</span>
-        <span class="drop-hint">PDF or JPEG, max 5MB</span>
+        @if(reportedUploaded()){
+          <span class="material-icons drop-icon" [class.active]="reportedUploaded()">check_circle</span>
+          <span class="drop-text">{{ uploadedFileName() }}</span>
+        }
+        @else{
+          <span class="material-icons drop-icon">attach_file</span>
+          <span class="drop-text">Click to upload or drag and drop</span>
+          <span class="drop-hint">PDF or JPEG, max 5MB</span>
+        }
       </div>
       <input
         type="file"

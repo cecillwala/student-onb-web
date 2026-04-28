@@ -23,6 +23,7 @@ export class WizardContainer implements OnInit, OnDestroy {
   saveStatus: SaveStatus = 'idle';
   lastStep = signal(this.currentStep() == 7 ? true : false);
   session = inject(SessionService);
+  errorMessage = signal('');
   private subs: Subscription[] = [];
   cd = inject(ChangeDetectorRef);
   api = inject(OnboardingApiService);
@@ -47,6 +48,26 @@ export class WizardContainer implements OnInit, OnDestroy {
       this.state.isNavigating$.subscribe(v => this.isNavigating.set(v));   
       console.log(this.currentStepData);
       this.navigate.navigate([`/onboarding/${this.currentStepData?.route}`])
+    });
+
+
+    this.api.verifyIdentity(localStorage.getItem("token") ?? '', '').subscribe({
+      next: (session) => {
+        this.session.setSession({
+          sessionToken: session.sessionToken,
+          studentId: session.studentId,
+          firstName: session.firstName,
+          lastName: session.lastName,
+          regNo: session.regNo,
+          programme: session.programme,
+          currentStep: session.currentStep,
+          status: session.status,
+        });
+      },
+      error: (err) => {
+        const message = err.error?.message ?? 'Failed to start onboarding. Please try again.';
+        this.errorMessage.set(message);
+      },
     });
   }
 

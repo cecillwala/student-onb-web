@@ -108,6 +108,8 @@ export class OnboardingStateService {
   goToStep(stepId: number): void {
     if (this.isStepAccessible(stepId)) {
       this.currentStepSubject.next(stepId);
+      const step = this.getStep(stepId);
+      this.router.navigate([`/onboarding/${step?.route}`]);
     }
   }
 
@@ -176,5 +178,9 @@ export class OnboardingStateService {
       completedSteps.add(i + 1);
     }
     this.completedStepsSubject.next(completedSteps);   
+  }
+
+  getStep(stepId: number): OnboardingStep | undefined {
+    return this.steps.find(s => s.id == stepId);
   }
 }

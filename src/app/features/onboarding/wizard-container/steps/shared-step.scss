@@ -281,6 +281,10 @@ ngx-material-intl-tel-input {
   font-size: 32px;
   color: $gray-400;
   margin-bottom: 4px;
+
+  &.active{
+    color: $primary;
+  }
 }
 
 .drop-icon-sm {
@@ -292,6 +296,10 @@ ngx-material-intl-tel-input {
   font-size: 13px;
   font-weight: 500;
   color: $gray-600;
+
+  &.active{
+    color: $primary;
+  }
 }
 
 .drop-text-sm {
@@ -397,7 +405,7 @@ ngx-material-intl-tel-input {
     color: $gray-400;
   }
 
-  &:has(.check_circle) {        // uploaded state
+  &.active{        // uploaded state
     border-color: $primary;
     background: $primary-bg;
 

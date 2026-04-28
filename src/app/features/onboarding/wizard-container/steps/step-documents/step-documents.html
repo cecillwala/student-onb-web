@@ -12,10 +12,13 @@
           <span class="doc-desc">{{ doc.description }}</span>
         </div>
 
-        <div class="drop-area doc-drop" (click)="triggerInput(doc.name)">
+        <div 
+        class="drop-area doc-drop" 
+        [class.active]="uploadedFiles[doc.name]"
+        (click)="triggerInput(doc.name)">
           @if (uploadedFiles[doc.name]) {
             <span class="material-icons drop-icon-sm">check_circle</span>
-            <span class="drop-text-sm">{{ uploadedFiles[doc.name].name }}</span>
+            <span class="drop-text">{{ uploadedFiles[doc.name].name }}</span>
           } @else {
             <span class="material-icons drop-icon-sm">upload_file</span>
             <span class="drop-text-sm">Click to upload</span>

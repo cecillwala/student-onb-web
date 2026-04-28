@@ -138,7 +138,7 @@ export class StepAccommodation implements OnInit, OnDestroy {
   // ── Load hostel data (one API call) ──
 
   private loadHostelData(): void {
-    this.api.getHostelDetails().subscribe({
+    this.api.getHostelDetails(localStorage.getItem("token") ?? '').subscribe({
       next: (res) => {
         this.allHostels.set(res);
 

@@ -163,8 +163,10 @@ export class OnboardingApiService {
   }
 
   // ── Step 1: Personal Details ──
-  getPersonalDetails(): Observable<PersonalDetailsRequest> {
-    return this.http.get<PersonalDetailsRequest>(`${this.baseUrl}/personal-details`);
+  getPersonalDetails(token: string): Observable<PersonalDetailsRequest> {
+    return this.http.get<PersonalDetailsRequest>(`${this.baseUrl}/personal-details`, {
+      params: { token }
+    });
   }
 
   savePersonalDetails(data: PersonalDetailsRequest): Observable<any> {
@@ -204,8 +206,14 @@ export class OnboardingApiService {
     return this.http.get<AccommodationRequest>(`${this.baseUrl}/accommodation`);
   }
 
-  getHostelDetails(): Observable<HostelDetailsRequest[]>{
-    return this.http.get<HostelDetailsRequest[]>(`${this.baseUrl}/hostels`);
+  getHostelDetails(token: string): Observable<HostelDetailsRequest[]>{
+    return this.http.get<HostelDetailsRequest[]>(`${this.baseUrl}/hostels`, {
+      params: { token }
+    });
+  }
+
+  getTracking(params: { token?: string; studentId?: string }): Observable<any> {
+    return this.http.get(`${this.baseUrl}/tracking`, { params: params as any });
   }
 
   saveAccommodation(data: AccommodationRequest, token: string): Observable<any> {
@@ -261,12 +269,16 @@ export class OnboardingApiService {
   }
 
   // ── Step 7: Summary + Submit ──
-  getSummary(): Observable<OnboardingSummary> {
-    return this.http.get<OnboardingSummary>(`${this.baseUrl}/summary`);
+  getSummary(token: string): Observable<any> {
+    return this.http.get(`${this.baseUrl}/summary`, {
+      params: { token }
+    });
   }
 
-  submit(): Observable<any> {
-    return this.http.post(`${this.baseUrl}/submit`, {});
+  submitApplication(token: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/submit`, {}, {
+      params: { token }
+    });
   }
 
   getCurrentStep(token: string): Observable<any>{
@@ -274,4 +286,10 @@ export class OnboardingApiService {
       params: { token }
     });
   }
+
+  sendChatMessage(message: string, sessionId?: string): Observable<{ conversationId: string; response: string }> {
+    return this.http.post<{ conversationId: string; response: string }>(
+      `${this.baseUrl}/chat`, { message, sessionId }
+    );
+}
 }

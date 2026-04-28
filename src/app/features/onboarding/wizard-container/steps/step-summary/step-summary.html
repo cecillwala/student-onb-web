@@ -6,7 +6,7 @@
   </div>
 </div>
 
-<div class="accordion" *ngFor="let section of sections">
+<div class="accordion" *ngFor="let section of sections()">
   <div class="accordion-header" (click)="toggle(section)">
     <div class="accordion-left">
       <span class="material-icons section-icon">{{ section.icon }}</span>
@@ -14,7 +14,7 @@
     </div>
     <div class="accordion-right">
       <button class="edit-btn" (click)="editSection(section.stepId); $event.stopPropagation()">
-        <span class="material-icons">edit</span>
+        <span class="material-icons" >edit</span>
         Edit
       </button>
       <span class="material-icons chevron" [class.open]="section.isOpen">
@@ -36,7 +36,7 @@
 <div class="submit-notice">
   <span class="material-icons">info</span>
   <span>
-    By clicking <strong>"Submit Application"</strong> below, you confirm that all information
+    By clicking <strong>"Review & Submit"</strong> below, you confirm that all information
     provided is accurate and complete. Your application will be reviewed by university staff.
   </span>
 </div>

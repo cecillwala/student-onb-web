@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { SharedImports } from '../../../../../shared/modules/shared.imports';
 import { DropdownSelect } from '../../../../../shared/components/dropdown-select/dropdown-select';
 import { DropdownSelectMultiple } from '../../../../../shared/components/dropdown-select-multiple/dropdown-select-multiple';
@@ -25,7 +25,8 @@ export class StepHealth implements OnInit, OnDestroy {
   form!: FormGroup;
   preferredCountries = ['ke'];
   uploadedFile: File | null = null;
-  uploadedFileName = '';
+  uploadedFileName = signal('');
+  reportedUploaded = signal(false);
   isLoading = true;
 
   // ── Dropdown data ──
@@ -183,7 +184,8 @@ export class StepHealth implements OnInit, OnDestroy {
     const input = event.target as HTMLInputElement;
     if (input.files?.length) {
       this.uploadedFile = input.files[0];
-      this.uploadedFileName = this.uploadedFile.name;
+      this.uploadedFileName.set(this.uploadedFile.name);
+      this.reportedUploaded.set(true);
     }
   }
 
@@ -198,7 +200,8 @@ export class StepHealth implements OnInit, OnDestroy {
     const file = event.dataTransfer?.files[0];
     if (file) {
       this.uploadedFile = file;
-      this.uploadedFileName = file.name;
+      this.uploadedFileName.set(file.name);
+      this.reportedUploaded.set(true);
     }
   }
 }

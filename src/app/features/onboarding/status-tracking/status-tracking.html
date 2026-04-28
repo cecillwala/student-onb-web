@@ -1,100 +1,137 @@
-<app-navbar [showProfile]="true"></app-navbar>
+<app-navbar [showProfile]="false"></app-navbar>
 
 <div class="status-page">
   <div class="status-container">
 
-    <!-- Page header -->
-    <div class="page-header">
-      <div class="header-text">
-        <h1>Application Status</h1>
-        <p>Hi {{ studentName }}, here's where your onboarding stands.</p>
+    <!-- Loading -->
+    @if (isLoading()) {
+      <div class="loading-state">
+        <span class="material-icons spin">hourglass_top</span>
+        <p>Loading your application status...</p>
       </div>
-      <div class="progress-badge">
-        <span class="progress-number">{{ progressPercentage }}%</span>
-        <span class="progress-label">Complete</span>
-      </div>
-    </div>
+    }
 
-    <!-- Progress bar -->
-    <div class="progress-bar-container">
-      <div class="progress-bar-track">
-        <div class="progress-bar-fill" [style.width.%]="progressPercentage"></div>
+    <!-- Error -->
+    @if (errorMessage()) {
+      <div class="error-state">
+        <span class="material-icons">error_outline</span>
+        <p>{{ errorMessage() }}</p>
       </div>
-      <span class="progress-summary">
-        {{ completedCount }} of {{ stages.length }} stages completed
-      </span>
-    </div>
+    }
 
-    <!-- Timeline -->
-    <div class="timeline">
-      <div
-        *ngFor="let stage of stages; let last = last; let i = index"
-        class="timeline-item"
-        [class.completed]="stage.status === 'completed'"
-        [class.in-progress]="stage.status === 'in-progress'"
-        [class.flagged]="stage.status === 'flagged'"
-        [class.pending]="stage.status === 'pending'"
-      >
-        <!-- Connector -->
-        <div class="timeline-connector">
-          <div class="timeline-dot">
-            <span class="material-icons dot-icon" *ngIf="stage.status === 'completed'">check</span>
-            <span class="material-icons dot-icon" *ngIf="stage.status === 'in-progress'">more_horiz</span>
-            <span class="material-icons dot-icon" *ngIf="stage.status === 'flagged'">priority_high</span>
-            <span class="material-icons dot-icon" *ngIf="stage.status === 'pending'">radio_button_unchecked</span>
-          </div>
-          <div class="timeline-line" *ngIf="!last" [class.filled]="stage.status === 'completed'"></div>
+    <!-- Content -->
+    @if (!isLoading() && !errorMessage()) {
+
+      <!-- Page header -->
+      <div class="page-header">
+        <div class="header-text">
+          <h1>Application Status</h1>
+          <p>Hi {{ studentName() }}, here's where your onboarding stands.</p>
         </div>
-
-        <!-- Content -->
-        <div class="timeline-content">
-          <div class="timeline-card">
-            <div class="card-top">
-              <div class="card-icon-area">
-                <span class="material-icons stage-icon">{{ stage.icon }}</span>
-              </div>
-              <div class="card-info">
-                <span class="stage-title">{{ stage.title }}</span>
-                <span class="stage-desc">{{ stage.description }}</span>
-              </div>
-              <div class="status-chip" [ngClass]="stage.status">
-                {{ getStatusLabel(stage.status) }}
-              </div>
-            </div>
-
-            <!-- Contextual details -->
-            <div class="card-detail" *ngIf="stage.date">
-              <span class="material-icons">schedule</span>
-              <span>{{ stage.date }}</span>
-            </div>
-
-            <div class="card-detail note" *ngIf="stage.note">
-              <span class="material-icons">info</span>
-              <span>{{ stage.note }}</span>
-            </div>
-
-            <!-- Flagged action -->
-            <div class="flagged-action" *ngIf="stage.status === 'flagged'">
-              <span class="material-icons">warning</span>
-              <span>{{ stage.note }}</span>
-              <button class="btn-resubmit">
-                <span class="material-icons">edit</span>
-                Re-submit
-              </button>
-            </div>
-          </div>
+        <div class="progress-badge">
+          <span class="progress-number">{{ progressPercentage }}%</span>
+          <span class="progress-label">Complete</span>
         </div>
       </div>
-    </div>
 
-    <!-- Help note -->
-    <div class="help-note">
-      <span class="material-icons">help_outline</span>
-      <div>
-        <strong>Have a question?</strong>
-        <p>If you need assistance, use the chat assistant or contact the university registrar's office.</p>
+      <!-- Progress bar -->
+      <div class="progress-bar-container">
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" [style.width.%]="progressPercentage"></div>
+        </div>
+        <span class="progress-summary">
+          {{ completedCount }} of {{ stages().length }} stages completed
+        </span>
       </div>
-    </div>
+
+      <!-- Timeline -->
+      <div class="timeline">
+        @for (stage of stages(); track stage.id; let last = $last; let i = $index) {
+          <div
+            class="timeline-item"
+            [class.completed]="stage.status === 'completed'"
+            [class.in-progress]="stage.status === 'in-progress'"
+            [class.flagged]="stage.status === 'flagged'"
+            [class.pending]="stage.status === 'pending'"
+          >
+            <!-- Connector -->
+            <div class="timeline-connector">
+              <div class="timeline-dot">
+                @switch (stage.status) {
+                  @case ('completed') {
+                    <span class="material-icons dot-icon">check</span>
+                  }
+                  @case ('in-progress') {
+                    <span class="material-icons dot-icon">more_horiz</span>
+                  }
+                  @case ('flagged') {
+                    <span class="material-icons dot-icon">priority_high</span>
+                  }
+                  @default {
+                    <span class="material-icons dot-icon">radio_button_unchecked</span>
+                  }
+                }
+              </div>
+              @if (!last) {
+                <div class="timeline-line" [class.filled]="stage.status === 'completed'"></div>
+              }
+            </div>
+
+            <!-- Content -->
+            <div class="timeline-content">
+              <div class="timeline-card">
+                <div class="card-top">
+                  <div class="card-icon-area">
+                    <span class="material-icons stage-icon">{{ stage.icon }}</span>
+                  </div>
+                  <div class="card-info">
+                    <span class="stage-title">{{ stage.title }}</span>
+                    <span class="stage-desc">{{ stage.description }}</span>
+                  </div>
+                  <div class="status-chip" [ngClass]="stage.status">
+                    {{ getStatusLabel(stage.status) }}
+                  </div>
+                </div>
+
+                <!-- Date -->
+                @if (stage.date) {
+                  <div class="card-detail">
+                    <span class="material-icons">schedule</span>
+                    <span>{{ stage.date }}</span>
+                  </div>
+                }
+
+                <!-- Note -->
+                @if (stage.note && stage.status !== 'flagged') {
+                  <div class="card-detail note">
+                    <span class="material-icons">info</span>
+                    <span>{{ stage.note }}</span>
+                  </div>
+                }
+
+                <!-- Flagged action -->
+                @if (stage.status === 'flagged' && stage.note) {
+                  <div class="flagged-action">
+                    <span class="material-icons">warning</span>
+                    <span>{{ stage.note }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Help note -->
+      <div class="help-note">
+        <span class="material-icons">help_outline</span>
+        <div>
+          <strong>Have a question?</strong>
+          <p>If you need assistance, use the chat assistant or contact the university registrar's office.</p>
+        </div>
+      </div>
+
+    }
 
   </div>
 </div>

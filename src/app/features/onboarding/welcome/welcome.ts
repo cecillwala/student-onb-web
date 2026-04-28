@@ -63,6 +63,7 @@ export class Welcome implements OnInit {
         this.isLoading.set(false);
       },
       error: (err) => {
+        console.log(err.status);
         const message = err.error?.message ?? 'Unable to verify your onboarding link. Please try again or contact support.';
         this.errorMessage.set(message);
         this.isLoading.set(false);
@@ -108,6 +109,7 @@ export class Welcome implements OnInit {
         this.router.navigate(['/onboarding/personal-details']);
       },
       error: (err) => {
+        console.log(err);
         this.isStarting.set(false);
         const message = err.error?.message ?? 'Failed to start onboarding. Please try again.';
         this.errorMessage.set(message);

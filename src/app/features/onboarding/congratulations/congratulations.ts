@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Navbar } from '../../../shared/components/navbar/navbar';
+import { OnboardingApiService } from '../../../shared/services/api/onboarding-api';
+import { SessionService } from '../../../shared/services/session';
 
 @Component({
   selector: 'app-congratulations-page',
@@ -10,8 +12,10 @@ import { Navbar } from '../../../shared/components/navbar/navbar';
   templateUrl: './congratulations.html',
   styleUrl: './congratulations.scss',
 })
-export class Congratulations {
+export class Congratulations implements OnInit{
   submittedAt = new Date();
+  api = inject(OnboardingApiService);
+  session = inject(SessionService);
 
   nextSteps = [
     {
@@ -42,6 +46,25 @@ export class Congratulations {
   ];
 
   constructor(private router: Router) {}
+  ngOnInit(): void {
+    this.api.verifyIdentity(localStorage.getItem("token") ?? '', '').subscribe({
+      next: (session) => {
+        this.session.setSession({
+          sessionToken: session.sessionToken,
+          studentId: session.studentId,
+          firstName: session.firstName,
+          lastName: session.lastName,
+          regNo: session.regNo,
+          programme: session.programme,
+          currentStep: session.currentStep,
+          status: session.status,
+        });
+      },
+      error: (err) => {
+        const message = err.error?.message ?? 'Failed to start onboarding. Please try again.';
+      },
+    });
+  }
 
   goToStatus(): void {
     this.router.navigate(['/onboarding/status']);

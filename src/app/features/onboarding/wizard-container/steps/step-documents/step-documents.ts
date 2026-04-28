@@ -41,7 +41,6 @@ export class StepDocuments implements OnInit, OnDestroy{
   }
 
   documents = [
-    { name: 'KCSE Certificate',     required: true,  description: 'Upload your KCSE certificate' },
     { name: 'KCSE Result Slip',     required: true,  description: 'Upload your KCSE result slip' },
     { name: 'Birth Certificate',    required: true,  description: 'Upload your birth certificate' },
     { name: 'Chief Details Form',   required: true,  description: 'Signed form from your area chief' },
