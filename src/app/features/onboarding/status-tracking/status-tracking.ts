@@ -34,8 +34,7 @@ export class StatusTracking implements OnInit {
     const studentId = this.route.snapshot.queryParamMap.get('studentId');
 
     if (!this.token && !studentId) {
-      this.errorMessage.set('No tracking link provided. Please use the link sent to your email.');
-      this.isLoading.set(false);
+      // this.stages.set();
       return;
     }
 
